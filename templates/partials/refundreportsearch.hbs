@@ -1,0 +1,29 @@
+<div class="addorderform">
+    <div><span>Transaction Search</span></div>
+    <form action="/api/RefundRequestReport" >
+        <div>
+            <label for="expire_on">Start Date-Time</label>
+            <input type="datetime-local" id="start_date" name="start_date" required>
+        </div>
+        <div>
+            <label for="expire_on">End Date-Time</label>
+            <input type="datetime-local" id="end_date" name="end_date" required>
+        </div>
+        <div>
+            <label for="file">Transaction Type</label>
+            <select name="type" id="type">
+                 <option value="">All</option>
+                 <option value="cash">Cash</option>
+                 <option value="online">Online</option>
+                  <option value="other">Others</option>
+            </select>
+        </div>
+        <div>
+            <label for="machine_id">Machine No.</label>
+            <input type="text" id="machine_id" name="machine_id" placeholder="Machine No.">
+        </div>
+      <button type="button"   id="refundsearch" style="margin-left: 12px;">Transaction</button>
+     <button type="submit" id="btn1"   style="margin-left: 12px;">CSV Report</button>
+    </form>
+     
+</div>

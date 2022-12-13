@@ -1,0 +1,50 @@
+<div class="addorderform">
+    <div><span>Add Order</span></div>
+    <form action="/assignlocker" method="POST">
+        <div> 
+      <label for="expire_on">Employee RFID Card No.</label>
+      <input type="text" id="card_no" name="card_no" placeholder="Card No." required>
+      </div>
+
+       {{!-- <div> 
+      <label for="expire_on">Employee ID</label>
+      <input type="text" id="employee_id" name="employee_id" placeholder="Employee ID (Optional)">
+      </div> --}}
+       
+       {{!-- <div>
+      <label for="machine_id">Locker Machine ID</label>
+      <input type="text" id="machine_id" name="machine_id" placeholder="Machine ID" required>
+      </div> --}}
+
+       <div>
+        <label for="file">Locker Machine ID</label>
+        <select name="machine_id" id="machine_id"> 
+        </select>
+       </div>
+
+
+       <div> 
+      <label for="expire_on">Locker Slote No.</label>
+      <input type="text" id="locker_slote" name="locker_slote" placeholder="Locker Slote No."required>
+       </div>
+       <div> 
+      <label for="expire_on">Password for Employee</label>
+      <input type="text" id="password" name="password" placeholder="Password" required>
+       </div>
+       {{!-- <div> 
+      <label for="expire_on">Item Description</label>
+      <input type="text" id="item_description" name="item_description"placeholder="Item Description" required>
+      </div> --}}
+      <div>
+        <label for="file">Item</label>
+        <select name="item" id="item"> 
+        </select>
+       </div>
+      <div> 
+      <label for="expire_on">Expiry Date</label>
+      <input type="datetime-local" id="expire_on" name="expire_on" required>
+      </div>
+      
+      <button type="submit" id="btn1">Add Order</button>
+  </form>
+</div>

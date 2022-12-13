@@ -1,0 +1,56 @@
+<div>
+    <div><span>Stored Data</span></div> 
+                    <table id="table_item1">
+                        <tr>
+                           
+                            <th>Product Name</th>
+                            <th>Description</th>
+                            <th>Product Type</th>
+                            <th>Serial No.</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            
+                        </tr>
+                        {{#each s}}
+                        <tr>
+                            <td>{{this.item_name}}</td>
+                            <td>{{this.item_description}}</td>
+                            <td>{{this.item_type}}</td>
+                            <td>{{this.item_serial_no}}</td>
+                            <td>{{this.item_price}}</td>
+                            <td><span style="color:rgb(0, 255, 21); font-weight: bold;">Success</span></td>
+                            
+                           
+                        </tr>
+                        {{/each}}
+                        
+                        </table>
+</div>
+<div>
+    <div><span>Rejected Data</span></div> 
+                    <table id="table_item1">
+                        <tr>
+                           
+                            <th>Product Name</th>
+                            <th>Description</th>
+                            <th>Product Type</th>
+                            <th>Serial No.</th>
+                            <th>Price</th>
+                            <th>Error</th>
+                            
+                        </tr>
+                        {{#each r}}
+                        <tr>
+                            <td>{{this.item_name}}</td>
+                            <td>{{this.item_description}}</td>
+                            <td>{{this.item_type}}</td>
+                            <td>{{this.item_serial_no}}</td>
+                            <td>{{this.item_price}}</td>
+                            <td><span style="color:rgb(253, 44, 44); font-weight: bold;">{{this.uploaderror}}</span></td>
+                            
+                           
+                        </tr>
+                        {{/each}}
+                        
+                        </table>
+</div>

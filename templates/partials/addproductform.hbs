@@ -1,0 +1,78 @@
+<div class="bulk">
+  <div>
+    <button id="bulk-product-upload-btn" class="bulk-btn">Bulk Upload</button>
+    <button id="bulk-product-delete-btn" class="bulk-btn">Bulk Delete</button>
+  </div>
+  <div class="csv-panal" id="csv-panal">
+    <div>
+      <span>Product Bulk Upload</span>
+    </div>
+    <form action="/productcsv" method="GET">
+      <div>
+        <label for="file">Select Machine</label>
+        <select name="machine_id" id="machine_id"> 
+        </select>
+      </div>
+      <div>
+        <button type="submit" id="">Download CSV</button>
+      </div>
+    </form>
+
+    <form action="/productFileUpload"  enctype="multipart/form-data" method="POST">
+      <div>
+        <label for="file">Product CSV File</label>
+        <input type="file" id="file" name="file" placeholder="Select .CSV File" required>
+      </div>
+      <div>
+        <button type="submit" id="">Upload File</button>
+      </div>
+    </form>
+
+
+  </div>
+</div>
+<div class="addorderform">
+    <div >
+      <span>Add Single Item</span> 
+    </div>
+     
+  
+    <form action="/addsingleproduct" method="POST">
+        <div> 
+      <label for="item_name">Item Name</label>
+      <input type="text" id="item_name" name="item_name" placeholder="Eg. HP Laptop, Dell Keyboard" required>
+      </div>
+
+       <div> 
+      <label for="item_description">Description</label>
+      <input type="text" id="item_description" name="item_description" placeholder="Black 5.1 inch HP Office Laptop" required>
+      </div>
+       
+       <div>
+      <label for="item_type">Item Type</label>
+      <input type="text" id="item_type" name="item_type" placeholder="Eg. Laptop, Mouse, Charger" required>
+       </div>
+       
+       <div> 
+      <label for="item_serial_no">Serial No.</label>
+      <input type="text" id="item_serial_no" name="item_serial_no" placeholder="SNXXXXXX0001(Optional)">
+       </div>
+       <div> 
+      <label for="item_price">Price</label>
+      <input type="text" id="item_price" name="item_price" placeholder="Price (Optional)">
+       </div>
+     {{!--  <div> 
+       <label for="expire_on">Item Description</label>
+      <input type="text" id="item_description" name="item_description"placeholder="Item Description" required>
+      </div>
+      <div> 
+      <label for="expire_on">Expire Validity</label>
+      <input type="datetime-local" id="expire_on" name="expire_on" required>
+      </div> --}}
+      
+      <button type="submit" id="btn1">Add Item</button>
+  </form>
+<script>
+preventResubmission();
+</script>
+</div>

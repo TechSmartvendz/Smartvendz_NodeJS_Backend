@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snaxsmart| Support</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="js/main.js"></script>
+    {{!--
+    <script type="text/javascript" src="js/vanilla-tilt.min.js"></script> --}}
+
+</head>
+
+<body>
+
+    <div id="section3-contact">
+        <div class="section3-contact-header">
+            <div>
+                {{!-- <h1>Want to buy, customize or have a workshop?</h1>
+                <h2>Leave the details and we’ll contact you soon :)</h2> --}}
+                <form class="details-form-div" action="/api/SnaxsmartSupport" method="post">
+
+                    <h1>Snaxsmart Support</h1>
+
+                    <div class="purpose-div">
+                        <label class="input-label" for="ename"> Employee Name:</label><br>
+                        <input class="input-fild" type="text" id="ename_id" name="ename" placeholder="Employee Name">
+
+                    </div>
+
+                    <div class="purpose-div">
+                        <label class="input-label" for="phone">Contact No:</label><br>
+                        <input class="input-fild" type="text" id="phone_id" name="phone" placeholder="Contact number">
+                    </div>
+
+                    <div class="purpose-div">
+                        <label class="input-label" for="email"> Machine No:</label><br>
+                        <span id="machine_msg">*Machine no. is located on top of the machine</span>
+                        <input class="input-fild" type="text" id="machine_id" name="machine" placeholder="Machine No.">
+                       
+                    </div>
+
+                    <div class="purpose-div">
+                        <label class="input-label" for="email"> Transaction Date and Time:</label><br>
+                        <input class="input-fild" type="datetime-local" id="tdate_id " name="tdate"
+                            placeholder="Transaction Date">
+                    </div>
+
+                    <div class="wrapper" style="min-width: 292px; max-width: 400px;">
+                        <input type="radio" name="select" id="option-1" value="cash">
+                        <input type="radio" name="select" id="option-2" value="online">
+                        <input type="radio" name="select" id="option-3" value="other">
+                        <label for="option-1" class="option option-1">
+                            {{!-- <div class="dot"></div> --}}
+                            <span>Cash</span>
+                        </label>
+                        <label for="option-2" class="option option-2">
+                            {{!-- <div class="dot"></div> --}}
+                            <span>Online/ UPI</span>
+                        </label>
+                        <label for="option-3" class="option option-3">
+                            {{!-- <div class="dot"></div> --}}
+                            <span>Other</span>
+                        </label>
+                    </div>
+
+                    <div class="cash-payment-block" id="cash-payment-block">
+                        <div class="purpose-div">
+                            <label class="input-label" for="email"> Total Paid Amount:</label><br>
+                            <input class="input-fild" type="number" id="tamount_id" name="tamount"
+                                placeholder="Total Paid Amount">
+                        </div>
+
+                        <div class="purpose-div">
+                            <label class="input-label" for="email">Refundable Amount:</label><br>
+                            <input class="input-fild" type="number" id="ramount_id" name="ramount"
+                                placeholder="Refundable Amount">
+                        </div>
+
+                        <div class="purpose-div">
+                            <label class="input-label" for="email">Comment:</label><br>
+
+                            <textarea class="input-fild" id="comment_id" name="comment" placeholder=" Any Comment"
+                                rows="4" cols="50"></textarea>
+                        </div>
+
+                    </div>
+
+                    <div class="online-payment-block" id="online-payment-block">
+                        <div class="purpose-div">
+                            <label class="input-label" for="email"> Total Paid Amount:</label><br>
+                            <input class="input-fild" type="number" id="tamount_id" name="tamount"
+                                placeholder="Total Paid Amount">
+                        </div>
+
+                        <div class="purpose-div">
+                            <label class="input-label" for="email">Refundable Amount:</label><br>
+                            <input class="input-fild" type="number" id="ramount_id" name="ramount"
+                                placeholder="Refundable Amount">
+                        </div>
+
+                        <div class="purpose-div">
+                            <label class="input-label" for="email">UPI/ Online Transaction ID:</label><br>
+                            <input class="input-fild" type="text" id="transaction_id" name="transaction_id"
+                                placeholder="Transaction ID">
+                        </div>
+
+                        <div class="purpose-div">
+                            <label class="input-label" for="email">Comment:</label><br>
+
+                            <textarea class="input-fild" id="comment_id" name="comment" placeholder=" Any Comment"
+                                rows="4" cols="50"></textarea>
+                        </div>
+
+                    </div>
+                    <div class="other-block" id="other-block">
+
+                        <div class="purpose-div">
+                            <label class="input-label" for="email">Suggestion:</label><br>
+                            <textarea class="input-fild" id="comment_id" name="suggestion" placeholder=" Any Suggestion"
+                                rows="4" cols="50"></textarea>
+                        </div>
+
+                    </div>
+                    <div class="submit-div">
+                        <input style="background-color:#0069d9; text-align: center;" type="submit" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+<script>
+    var radios = document.querySelectorAll('input[type=radio][name="select"]');
+    radios.forEach(radio => radio.addEventListener('change', () => {
+        console.log(radio.value);
+        if (radio.value == "cash") {
+            console.log("1");
+            const x = document.getElementById("cash-payment-block");
+            x.style.display = "block";
+            console.log("3");
+            const y = document.getElementById("online-payment-block");
+
+            y.style.display = "none";
+            const z = document.getElementById("other-block");
+
+            z.style.display = "none";
+           
+        } else if(radio.value == "online")  {
+            console.log("2");
+            const x = document.getElementById("cash-payment-block");
+
+            x.style.display = "none";
+            console.log("3");
+            const y = document.getElementById("online-payment-block");
+
+            y.style.display = "block";
+            const z = document.getElementById("other-block");
+
+            z.style.display = "none";
+        }
+        else if(radio.value == "other")  {
+            console.log("2");
+            const x = document.getElementById("cash-payment-block");
+
+            x.style.display = "none";
+            console.log("3");
+            const y = document.getElementById("online-payment-block");
+
+            y.style.display = "none";
+             const z = document.getElementById("other-block");
+
+            z.style.display = "block";
+        }
+        else {
+             const x = document.getElementById("cash-payment-block");
+
+            x.style.display = "none";
+            console.log("3");
+            const y = document.getElementById("online-payment-block");
+
+            y.style.display = "none";
+             const z = document.getElementById("other-block");
+
+            z.style.display = "none";
+
+        }
+
+
+
+
+    }));
+
+
+    var msg=document.getElementById("machine_msg");
+    var input_machine=document.getElementById("machine_id");
+       function myFocusFunction() {
+  document.getElementById("machine_msg").style.display = "block";
+}
+       function myFocusFunctionhide() {
+  document.getElementById("machine_msg").style.display = "none";
+}
+input_machine.addEventListener("focus", myFocusFunction, true);
+input_machine.addEventListener("blur", myFocusFunctionhide, true);
+
+
+ 
+
+</script>
+
+</html>

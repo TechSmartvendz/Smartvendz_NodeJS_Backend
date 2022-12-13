@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snaxsmart| Support</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="js/main.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <script type="text/javascript" src="../js/main.js"></script>
+    {{!--
+    <script type="text/javascript" src="js/vanilla-tilt.min.js"></script> --}}
+</head>
+<body>
+   
+    <section>
+        <div>
+     
+            <div class="contant">
+                 {{#if notify}}
+                 <div id="alert-msg">
+                    {{#if popup}}
+                    <div class="popup"><span>&#10003; {{status}}</span></div>
+                      <script>
+                        preventResubmission();
+                      </script>
+                    {{/if}}
+                    {{#if error}}
+                    <div class="error"><span>&#10060; {{estatus}}</span></div>
+                    <script>
+                        preventResubmission();
+                    </script>
+                    {{/if}}
+                </div>
+                {{/if}}
+             
+                {{>refundreportsearch}}
+              {{>refundreport}}
+               {{#if default}}
+              <script>calltransactionApi()</script>
+             {{/if}}
+
+            </div>
+
+        </div>
+
+    </section>
+    {{!-- {{>footer}} --}}
+
+
+</body>
+<script>
+  window.onload = function() {
+  console.log("window.onload");
+  document.getElementById("refundsearch").addEventListener('click', refundsearch);    
+   
+ // document.getElementById("refresh-btn").addEventListener('click', reload);
+
+}
+</script>
+</html>
