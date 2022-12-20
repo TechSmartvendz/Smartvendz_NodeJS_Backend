@@ -1,4 +1,0 @@
-employee_id,card_number,employee_name,cost_center_owner_name,email,manager_email,cost_center,department,monthly_limit
-10000001,111029,Kuldeep Test1,TEST_1,kuldeep@smartvendz.com,muralidhar@snaxsmart.com,TEST1,TEST1,500
-10000003,65556,Kuldeep Test2,TEST_3,kuldeep@smartvendz.com,muralidhar@snaxsmart.com,TEST3,TEST3,500
-10000002,397245,Kuldeep Test2,TEST_2,kuldeep@smartvendz.com,muralidhar@snaxsmart.com,TEST2,TEST2,500

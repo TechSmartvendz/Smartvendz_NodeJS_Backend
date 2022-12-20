@@ -91,6 +91,8 @@ app.get("/", (req, res) => {
    res.send("Smartvendz:403:pro13:14/11:b:2:+r:API/07/11");
 
 })
+
+
 var r_slot="";
 var r_orderid="";
 app.get("/riosh/:orderId", (req, res) => {
@@ -1183,9 +1185,90 @@ app.get("/csvreport", auth, async (req, res) => {
 
 
 })
+
+
 ///////////////////Credit Logic APIs START/////////////////////////////////////////
 
+app.get("/credit/csvreport", auth, async (req, res) => {
+    console.log(req.body);
+    var trans = [];
+    function transaction(x) {
+        if (x) {
+            trans.push(x);
+        }
+        return trans;
+    }
+    
 
+    try {
+        const startDate = req.body.start;
+        const endDate = req.body.end;
+        const company_id = req.body.company_id;
+        const machine_id = req.body.machine_id;
+        var total_credit=0;
+        var total_balance=0;
+        console.log(`${startDate} to ${endDate}`);
+        const data = await Credittable.find({
+            $and: [{ $or: [{ admin_id: req.user._id }, { super_admin: req.user.id }] },
+            {
+                created_date: {
+                    $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+                    $lte: new Date(new Date(endDate).setHours(23, 59, 59))
+                }
+            },
+            {company_id:company_id},{machine_id:machine_id}
+            ]
+        })
+
+
+        console.log(data.length);
+        if (!(data.lenght == 0)) {
+            for (i = 0; i < data.length; i++) {
+                const j = {
+                    "created_date": data[i].created_date,
+                    "credit_month":data[i].credit_month,
+                    "card_number":  data[i].card_number,
+                    "employee_name":  data[i].employee_name,
+                    "email":  data[i].email,
+                    "manager_email":  data[i].manager_email,
+                    "cost_center":  data[i].cost_center,
+                    "credit_amount": data[i].monthly_limit,
+                    "transaction_count":data[i].transaction_count,
+                    "credit_balance": data[i].credit_balance,
+                    "active_status": data[i].active_status
+                }
+                total_balance+= data[i].credit_balance;
+                total_credit+= data[i].monthly_limit;
+                transaction(j);
+
+            }
+            console.log(total_balance);
+            console.log(total_credit);
+
+            const csvFields = ["Credit_Date", "Credit_Month","Card_number", "Employee_name", "Email", "Manager_Email", "Cost_center", "credit_amount", "transaction_count", "credit_balance", "active_status"];
+            const csvParser = new CsvParser({ csvFields });
+            var csvData = csvParser.parse(trans);
+           // console.log(csvData);
+            var csvrow= `\n\"total_credit\",\"${total_credit}\"\n\"total_balance\",\"${total_balance}\"`;
+             csvData=csvData+csvrow;
+             console.log(csvrow);
+            res.setHeader("Content-Type", "text/csv");
+            res.setHeader("Content-Disposition", "attachment; filename=Transactions.csv");
+
+            res.status(200).end(csvData);
+        }
+        else {
+            res.status(200).json({ "error": "transactions not found" });
+        }
+
+    }
+    catch (e) {
+        res.status(200).json({ "error": "server internal error" });
+        console.log(e);
+    }
+
+
+})
 
 app.post("/creditupload/:machine", auth, upload.single("credit"), async (req, res) => {
 
@@ -1309,8 +1392,6 @@ app.post("/creditupload/:machine", auth, upload.single("credit"), async (req, re
 })
 
 app.get("/credit/snaxsmart/:machine", async (req, res) => {
-
-
     if (!(req.query.card == (undefined))) {
         // console.log(req.query);
         // console.log(req.params);
@@ -1554,19 +1635,12 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
     }
 })
 
-
-
-
-
 ///////////////////Credit Logic APIs END////////////////////////////////////////////
 
 
 
 ///////////////////Report generate part///////////////////////////////////
-
 app.get("/snaxsmart/:machine", async (req, res) => {
-
-
     if (!(req.query.card == (undefined))) {
         // console.log(req.query);
         // console.log(req.params);
@@ -9106,7 +9180,7 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
     }
 });
 
-
+//////////////////PULSAR VMC API//////////////////
 var vmctestpayment=0;
 var vmcstoreid="snaxsmartstore1";
 var vmcterminalid="444f4r343443f443ff4";
@@ -9172,22 +9246,6 @@ app.get("/vmctestqr/vendack/", async (req, res) => {
      console.log(e);
  }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 app.listen(port, () => { console.log(`connection is setup at ${port}`); })
