@@ -34,6 +34,7 @@ require("./db/conn");
 const Employee = require("./models/employee");
 const User = require("./models/user");
 const Transaction = require("./models/transaction");
+const Rejectedcard = require("./models/rejectedcards");
 const Pendingstatus = require("./models/pendingstatus");
 const Product = require("./models/product");
 const Machine = require("./models/machine");
@@ -1711,13 +1712,44 @@ app.get("/snaxsmart/:machine", async (req, res) => {
 
 
             } else {
+                const rejectedcard = new Rejectedcard();
+               
+               
+                rejectedcard.tdate = req.query.date;
+                rejectedcard.ttime = req.query.time;
+                rejectedcard.card_no = req.query.card;
+                rejectedcard.admin_id = mdata.admin_id;
+                rejectedcard.super_admin = mdata.super_admin;
+                rejectedcard.local_admin = mdata.local_admin;
+                rejectedcard.machine_id = req.params.machine;
+                rejectedcard.error = "Invalid Card";
+
+
+                //console.log(transaction);
+                rejectedcard.save().then((d) => {
+                    console.log(d);
                 console.log("Invalid Card No.")
                 res.status(200).send("fail");
+            });
             }
         } catch (e) {
-            console.log("Server Internal problem")
-            console.log(e);
-            res.status(200).send("fail");
+            const rejectedcard = new Rejectedcard();  
+            rejectedcard.tdate = req.query.date;
+            rejectedcard.ttime = req.query.time;
+            rejectedcard.card_no = req.query.card;
+            rejectedcard.admin_id = "N/A";
+            rejectedcard.super_admin ="N/A";
+            rejectedcard.local_admin = "N/A";
+            rejectedcard.machine_id = req.params.machine;
+            rejectedcard.error = e;
+            //console.log(transaction);
+            rejectedcard.save().then((d) => {
+                console.log(d);
+                console.log("Server Internal problem")
+                console.log(e);
+                res.status(200).send("fail");
+        });
+           
         }
     }
     else {
