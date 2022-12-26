@@ -1485,14 +1485,42 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
 
 
             } else {
+                const rejectedcard = new Rejectedcard();
+                rejectedcard.tdate = req.query.date;
+                rejectedcard.ttime = req.query.time;
+                rejectedcard.card_no = req.query.card;
+                rejectedcard.admin_id = mdata.admin_id;
+                rejectedcard.super_admin = mdata.super_admin;
+                rejectedcard.local_admin = mdata.local_admin;
+                rejectedcard.machine_id = req.params.machine;
+                rejectedcard.error = "Invalid Card";
+
+
+                //console.log(transaction);
+                rejectedcard.save().then((d) => {
+                    console.log(d);
                 console.log("Invalid Card No.")
                 res.status(200).send("fail");
+            });
             }
-        
         } catch (e) {
-            console.log("Server Internal problem")
-            console.log(e);
-            res.status(200).send("fail");
+            const rejectedcard = new Rejectedcard();  
+            rejectedcard.tdate = req.query.date;
+            rejectedcard.ttime = req.query.time;
+            rejectedcard.card_no = req.query.card;
+            rejectedcard.admin_id = "N/A";
+            rejectedcard.super_admin ="N/A";
+            rejectedcard.local_admin = "N/A";
+            rejectedcard.machine_id = req.params.machine;
+            rejectedcard.error = e;
+            //console.log(transaction);
+            rejectedcard.save().then((d) => {
+                console.log(d);
+                console.log("Server Internal problem")
+                console.log(e);
+                res.status(200).send("fail");
+        });
+           
         }
     }
     else {
@@ -1617,15 +1645,45 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
 
 
             } else {
-                res.setHeader('cache-control', 'no-cache');
-                res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
-                console.log("Invalid Card No.")
-                res.status(200).send("invalid card");
+                const rejectedcard = new Rejectedcard();
+                rejectedcard.tdate = req.query.date;
+                rejectedcard.ttime = req.query.time;
+                rejectedcard.card_no = req.query.card;
+                rejectedcard.admin_id = mdata.admin_id;
+                rejectedcard.super_admin = mdata.super_admin;
+                rejectedcard.local_admin = mdata.local_admin;
+                rejectedcard.machine_id = req.params.machine;
+                rejectedcard.error = "Invalid Card";
+
+
+                //console.log(transaction);
+                rejectedcard.save().then((d) => {
+                    res.setHeader('cache-control', 'no-cache');
+                    res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
+                    console.log("Invalid Card No.")
+                    res.status(200).send("invalid card");
+            });
             }
         } catch (e) {
-            console.log("Server Internal problem")
-            console.log(e);
-            res.status(200).send("invalid card");
+            const rejectedcard = new Rejectedcard();  
+            rejectedcard.tdate = req.query.date;
+            rejectedcard.ttime = req.query.time;
+            rejectedcard.card_no = req.query.card;
+            rejectedcard.admin_id = "N/A";
+            rejectedcard.super_admin ="N/A";
+            rejectedcard.local_admin = "N/A";
+            rejectedcard.machine_id = req.params.machine;
+            rejectedcard.error = e;
+            //console.log(transaction);
+            rejectedcard.save().then((d) => {
+                console.log(d);
+                console.log("Server Internal problem");
+                console.log(e);
+                res.setHeader('cache-control', 'no-cache');
+                res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
+                res.status(200).send("invalid card");
+        });
+           
         }
     }
     else {
@@ -1713,8 +1771,6 @@ app.get("/snaxsmart/:machine", async (req, res) => {
 
             } else {
                 const rejectedcard = new Rejectedcard();
-               
-               
                 rejectedcard.tdate = req.query.date;
                 rejectedcard.ttime = req.query.time;
                 rejectedcard.card_no = req.query.card;
@@ -1883,15 +1939,42 @@ app.get("/h/snaxsmart/:machine", async (req, res) => {
 
 
             } else {
+                const rejectedcard = new Rejectedcard();
+                rejectedcard.tdate = req.query.date;
+                rejectedcard.ttime = req.query.time;
+                rejectedcard.card_no = req.query.card;
+                rejectedcard.admin_id = mdata.admin_id;
+                rejectedcard.super_admin = mdata.super_admin;
+                rejectedcard.local_admin = mdata.local_admin;
+                rejectedcard.machine_id = req.params.machine;
+                rejectedcard.error = "Invalid Card";
+                //console.log(transaction);
+                rejectedcard.save().then((d) => {
+                   // console.log(d);
                 res.setHeader('cache-control', 'no-cache');
                 res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
                 console.log("Invalid Card No.")
                 res.status(200).send("invalid card");
+            });
             }
         } catch (e) {
-            console.log("Server Internal problem")
-            console.log(e);
-            res.status(200).send("invalid card");
+            const rejectedcard = new Rejectedcard();  
+            rejectedcard.tdate = req.query.date;
+            rejectedcard.ttime = req.query.time;
+            rejectedcard.card_no = req.query.card;
+            rejectedcard.admin_id = "N/A";
+            rejectedcard.super_admin ="N/A";
+            rejectedcard.local_admin = "N/A";
+            rejectedcard.machine_id = req.params.machine;
+            rejectedcard.error = e;
+            //console.log(transaction);
+            rejectedcard.save().then((d) => {
+                console.log(d);
+                console.log("Server Internal problem")
+                console.log(e);
+                res.status(200).send("fail");
+        });
+           
         }
     }
     else {
