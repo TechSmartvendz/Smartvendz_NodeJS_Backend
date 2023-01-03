@@ -1106,8 +1106,26 @@ app.patch(
                   },
                   update
                 );
-                console.log(doc);
+                //console.log(doc);
+                if(doc==null){
+                    console.log("item not found")
+                    const product = new Product(results[i]);
+                    pid = results[i].machine_id + results[i].slote_number;
+                    product.admin_id = req.user.id;
+                    product.product_id = pid
+                    await product.save().then(() => {
+                        const s = succ(results[i]);
+                    }).catch((e) => {
+                        if (e.code == 11000) {
+                            const r = reject(results[i]);
+                            //        console.log(e.code);
+                        } else {
+                            console.log(e);
+                        }
+                    })
+                }else {
                 const s = succ(results[i]);
+                }
               } catch (e) {
                 const r = reject(results[i]);
                 console.log(e);
