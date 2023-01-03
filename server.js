@@ -1048,6 +1048,107 @@ app.post("/productFileUpload/:machine", auth, upload.single("image"), async (req
     }
     ///////////////////////////////////data_entry code //////////////////////////////  
 })
+
+
+app.patch(
+  "/productFileUpload/:machine",
+  auth,
+  upload.single("image"),
+  async (req, res) => {
+    var rejectdata = [];
+    function reject(x) {
+      if (x) {
+        rejectdata.push(x);
+      }
+      return rejectdata;
+    }
+    var storeddata = [];
+    function succ(x) {
+      if (x) {
+        storeddata.push(x);
+      }
+      return storeddata;
+    }
+
+    var path = `public/${req.file.filename}`;
+    //console.log(path);
+    //console.log(req.params.machine);
+    //console.log(req.user);
+    ///////////////////////////////////data_entry code //////////////////////////////
+    const results = [];
+    try {
+      const machinedata = await Machine.findOne(
+        { machine_id: req.params.machine },
+        { machine_id: 1, total_slots: 1, admin: 1, company_id: 1 }
+      );
+      //console.log(machinedata);
+      if (machinedata.admin === req.user.id) {
+        await fs
+          .createReadStream(path)
+          .pipe(csv({}))
+          .on("data", (data) => results.push(data))
+          .on("end", async () => {
+            //console.log(results.length);
+            for (i = 0; i < results.length; i++) {
+              try {
+                //console.log(result[i]);
+                const update = { item_description: results[i].item_description,
+                                quantity: results[i].quantity,
+                                item_price: results[i].item_price};
+                let doc = await Product.findOneAndUpdate(
+                  {
+                    $and: [
+                      { admin_id: req.user.id },
+                      { company_id: machinedata.company_id },
+                      { machine_id: machinedata.machine_id },
+                      { slote_number: results[i].slote_number},
+                    ],
+                  },
+                  update
+                );
+                console.log(doc);
+                const s = succ(results[i]);
+              } catch (e) {
+                const r = reject(results[i]);
+                console.log(e);
+              }
+            }
+            const r = reject();
+            console.log(storeddata.length);
+            //console.log(rejectdata);
+            //console.log(machinedata.total_slots);
+            //console.log(rejectdata.length);
+            if (rejectdata.length > 0) {
+              res.status(200).json({
+                  dataupload: "error",
+                  reject_data: rejectdata,
+                  stored_data: storeddata,
+                });
+            } else {
+              res.status(200).json({ dataupload: "success", data: storeddata.length });
+            }
+          });
+      } else {
+        res.status(200).json({
+            dataupload: "failed",
+            error: "you don't have permission add product to this machine",
+          });
+      }
+    } catch (e) {
+      if (!e.length == 0) {
+        //console.log("if");
+        res.status(200).json({ dataupload: "failed", error: e });
+      } else {
+        //console.log("else");
+        console.log(e);
+        res
+          .status(200)
+          .json({ dataupload: "failed", error: "machine not found " });
+      }
+    }
+    ///////////////////////////////////data_entry code //////////////////////////////
+  }
+);
 ////////////////bulck data_file upload code ////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////Report generate part///////////////////////////////////
