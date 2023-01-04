@@ -69,13 +69,13 @@
                     <div class="cash-payment-block" id="cash-payment-block">
                         <div class="purpose-div">
                             <label class="input-label" for="tamount_id"> Total Paid Amount:</label><br>
-                            <input class="input-fild" type="number" id="ctamount_id" name="tamount"
+                            <input class="input-fild" type="number" id="tamount_id" name="tamount"
                                 placeholder="Total Paid Amount" >
                         </div>
 
                         <div class="purpose-div">
                             <label class="input-label" for="ramount_id">Refundable Amount:</label><br>
-                            <input class="input-fild" type="number" id="cramount_id" name="ramount"
+                            <input class="input-fild" type="number" id="ramount_id" name="ramount"
                                 placeholder="Refundable Amount" >
                         </div>
 
@@ -104,7 +104,7 @@
                         <div class="purpose-div">
                             <label class="input-label" for="transaction_id">UPI/ Online Transaction ID:</label><br>
                             <input class="input-fild" type="text" id="transaction_id" name="transaction_id"
-                                placeholder="Transaction ID" >
+                                placeholder="Transaction ID" value="Transaction Id not available" required>
                         </div>
 
                         <div class="purpose-div">
@@ -141,7 +141,8 @@
         if (radio.value == "cash") {
             console.log("1");
             const x = document.getElementById("cash-payment-block");
-
+              const trn = document.getElementById("transaction_id");
+             trn.value="Transaction ID";
             x.style.display = "block";
             console.log("3");
             const y = document.getElementById("online-payment-block");
@@ -158,7 +159,8 @@
             x.style.display = "none";
             console.log("3");
             const y = document.getElementById("online-payment-block");
-
+            const trn = document.getElementById("transaction_id");
+             trn.value="";
             y.style.display = "block";
             const z = document.getElementById("other-block");
 
@@ -174,7 +176,8 @@
 
             y.style.display = "none";
              const z = document.getElementById("other-block");
-
+             const trn = document.getElementById("transaction_id");
+             trn.value="Transaction ID";
             z.style.display = "block";
         }
         else {
