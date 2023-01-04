@@ -89,7 +89,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.get("/", (req, res) => {
-   res.send("Smartvendz:403:pro13:14/11:b:2:+r:API/07/11");
+   res.send("Smartvendz:403:pro13:14/11:b:2:+r:API/04/1");
 
 })
 
