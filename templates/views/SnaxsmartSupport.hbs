@@ -69,20 +69,20 @@
                     <div class="cash-payment-block" id="cash-payment-block">
                         <div class="purpose-div">
                             <label class="input-label" for="tamount_id"> Total Paid Amount:</label><br>
-                            <input class="input-fild" type="number" id="tamount_id" name="tamount"
-                                placeholder="Total Paid Amount" required>
+                            <input class="input-fild" type="number" id="ctamount_id" name="tamount"
+                                placeholder="Total Paid Amount" >
                         </div>
 
                         <div class="purpose-div">
                             <label class="input-label" for="ramount_id">Refundable Amount:</label><br>
-                            <input class="input-fild" type="number" id="ramount_id" name="ramount"
-                                placeholder="Refundable Amount" required>
+                            <input class="input-fild" type="number" id="cramount_id" name="ramount"
+                                placeholder="Refundable Amount" >
                         </div>
 
                         <div class="purpose-div">
                             <label class="input-label" for="comment_id">Comment:</label><br>
 
-                            <textarea class="input-fild" id="comment_id" name="comment" placeholder=" Any Comment"
+                            <textarea class="input-fild" id="ccomment_id" name="comment" placeholder=" Any Comment"
                                 rows="4" cols="50" ></textarea>
                         </div>
 
@@ -92,19 +92,19 @@
                         <div class="purpose-div">
                             <label class="input-label" for="tamount_id"> Total Paid Amount:</label><br>
                             <input class="input-fild" type="number" id="tamount_id" name="tamount"
-                                placeholder="Total Paid Amount" required>
+                                placeholder="Total Paid Amount" >
                         </div>
 
                         <div class="purpose-div">
                             <label class="input-label" for="ramount_id">Refundable Amount:</label><br>
                             <input class="input-fild" type="number" id="ramount_id" name="ramount"
-                                placeholder="Refundable Amount" required>
+                                placeholder="Refundable Amount" >
                         </div>
 
                         <div class="purpose-div">
                             <label class="input-label" for="transaction_id">UPI/ Online Transaction ID:</label><br>
                             <input class="input-fild" type="text" id="transaction_id" name="transaction_id"
-                                placeholder="Transaction ID" required>
+                                placeholder="Transaction ID" >
                         </div>
 
                         <div class="purpose-div">
@@ -141,6 +141,7 @@
         if (radio.value == "cash") {
             console.log("1");
             const x = document.getElementById("cash-payment-block");
+
             x.style.display = "block";
             console.log("3");
             const y = document.getElementById("online-payment-block");
