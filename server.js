@@ -344,9 +344,13 @@ app.get("/logo", (req, res) => {
     res.sendFile(__dirname + '/snaxmartimg.png');
 });
    //FIXME: No need this Upload page this is only use for testing//FIXME:
-app.get("/upload", (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+app.get("/machine/sales", (req, res) => {
+   
+     res.sendFile(__dirname + '/getSalesReportOnMachine.html');
 });
+// app.get("/machine/product/update", (req, res) => {
+//     res.sendFile(__dirname + '/index.html');
+// });
 app.post("/register", async (req, res) => {
     try {
         if (req.body.password === req.body.cpassword) {
@@ -961,6 +965,120 @@ app.post("/productFileUpload/:machine", auth, upload.single("image"), async (req
     ///////////////////////////////////data_entry code //////////////////////////////  
 });
   //TODO: Product Bulk Update///////////////
+
+// app.get("/productFileUpload",auth,upload.single("image"),async (req, res) => {
+//     var rejectdata = [];
+//     function reject(x) {
+//       if (x) {
+//         rejectdata.push(x);
+//       }
+//       return rejectdata;
+//     }
+//     var storeddata = [];
+//     function succ(x) {
+//       if (x) {
+//         storeddata.push(x);
+//       }
+//       return storeddata;
+//     }
+
+//     var path = `public/${req.file.filename}`;
+//     //console.log(path);
+//     //console.log(req.params.machine);
+//     //console.log(req.user);
+//     ///////////////////////////////////data_entry code //////////////////////////////
+//     const results = [];
+//     try {
+//       const machinedata = await Machine.findOne(
+//         { machine_id: req.query.machine },
+//         { machine_id: 1, total_slots: 1, admin: 1, company_id: 1 }
+//       );
+//       //console.log(machinedata);
+//       if (machinedata.admin === req.user.id) {
+//         await fs
+//           .createReadStream(path)
+//           .pipe(csv({}))
+//           .on("data", (data) => results.push(data))
+//           .on("end", async () => {
+//             //console.log(results.length);
+//             for (i = 0; i < results.length; i++) {
+//               try {
+//                 //console.log(result[i]);
+//                 const update = { item_description: results[i].item_description,
+//                                 quantity: results[i].quantity,
+//                                 item_price: results[i].item_price};
+//                 let doc = await Product.findOneAndUpdate(
+//                   {
+//                     $and: [
+//                       { admin_id: req.user.id },
+//                       { company_id: machinedata.company_id },
+//                       { machine_id: machinedata.machine_id },
+//                       { slote_number: results[i].slote_number},
+//                     ],
+//                   },
+//                   update
+//                 );
+//                 //console.log(doc);
+//                 if(doc==null){
+//                     console.log("item not found")
+//                     const product = new Product(results[i]);
+//                     pid = results[i].machine_id + results[i].slote_number;
+//                     product.admin_id = req.user.id;
+//                     product.product_id = pid
+//                     await product.save().then(() => {
+//                         const s = succ(results[i]);
+//                     }).catch((e) => {
+//                         if (e.code == 11000) {
+//                             const r = reject(results[i]);
+//                             //        console.log(e.code);
+//                         } else {
+//                             console.log(e);
+//                         }
+//                     })
+//                 }else {
+//                 const s = succ(results[i]);
+//                 }
+//               } catch (e) {
+//                 const r = reject(results[i]);
+//                 console.log(e);
+//               }
+//             }
+//             const r = reject();
+//             console.log(storeddata.length);
+//             //console.log(rejectdata);
+//             //console.log(machinedata.total_slots);
+//             //console.log(rejectdata.length);
+//             if (rejectdata.length > 0) {
+//               res.status(200).json({
+//                   dataupload: "error",
+//                   reject_data: rejectdata,
+//                   stored_data: storeddata,
+//                 });
+//             } else {
+//               res.status(200).json({ dataupload: "success", data: storeddata.length });
+//             }
+//           });
+//       } else {
+//         res.status(200).json({
+//             dataupload: "failed",
+//             error: "you don't have permission add product to this machine",
+//           });
+//       }
+//     } catch (e) {
+//       if (!e.length == 0) {
+//         //console.log("if");
+//         res.status(200).json({ dataupload: "failed", error: e });
+//       } else {
+//         //console.log("else");
+//         console.log(e);
+//         res
+//           .status(200)
+//           .json({ dataupload: "failed", error: "machine not found " });
+//       }
+//     }
+//     ///////////////////////////////////data_entry code //////////////////////////////
+//   }
+// );
 app.patch("/productFileUpload/:machine",auth,upload.single("image"),async (req, res) => {
     var rejectdata = [];
     function reject(x) {
@@ -1105,6 +1223,72 @@ app.post("/report", auth, async (req, res) => {
     }
     res.status(200).json({ "data": data });
 })
+app.get("/machine/sales/report", auth, async (req, res) => {
+    console.log(req.body);
+    console.log(req.params);
+    console.log(req.query);
+    const machine_id=req.query.machine;
+    var productSale = [];
+    function ProductSale(x) {
+        if (x) {
+            productSale.push(x);
+        }
+        return productSale;
+    }
+    try {
+        const startDate = req.query.start;
+        const endDate = req.query.end;
+        console.log(`${startDate} to ${endDate}`);
+        const data = await Transaction.find({
+            $and: [{ $or: [{ admin_id: req.user._id }, { super_admin: req.user.id }] },
+            {
+                created_date: {
+                    $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+                    $lte: new Date(new Date(endDate).setHours(23, 59, 59))
+                }
+            },{machine_id:machine_id}
+            ]
+        })
+        console.log(data.length);
+        if (!(data.lenght == 0)) {
+            for (i = 0; i < data.length; i++) {
+
+                const pdata = await Product.findOne({ _id: data[i].titem });
+                console.log("product data= "+pdata);
+                var result = productSale.find(product => product.slote_number === pdata.slote_number);
+                console.log("result ==>" +result);
+                if (result!=undefined){
+                   result.sold_quantity+=1;
+                }else {
+                const j = {
+                    "company_id": pdata.company_id,
+                    "machine_id": data[i].machine_id,
+                    "slote_number": pdata.slote_number,
+                   "item_description":pdata.item_description,
+                    "item_price": pdata.item_price,
+                    "sold_quantity":1
+                }
+                ProductSale(j);
+            }
+            }
+            const csvFields = ["company_id", "machine_id", "slote_number", "item_description", "item_price", "sold_quantity"];
+            const csvParser = new CsvParser({ csvFields });
+            const csvData = csvParser.parse(productSale);
+            res.setHeader("Content-Type", "text/csv");
+            res.setHeader("Content-Disposition", "attachment; filename=Transactions.csv");
+
+            res.status(200).end(csvData);
+        }
+        else {
+            res.status(200).json({ "error": "transactions not found" });
+        }
+    }
+    catch (e) {
+        res.status(200).json({ "error": "server internal error" });
+        console.log(e);
+    }
+});
+
 app.get("/csvreport", auth, async (req, res) => {
     console.log(req.body);
     var trans = [];
