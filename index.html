@@ -7,11 +7,12 @@
     <title>Document</title>
 </head>
 <body>
-    <form method="post" action="/fileUpload" enctype="multipart/form-data">
-    <input type="file" name="image" />
+    <form method="patch" action="/productFileUpload" enctype="multipart/form-data">
+    <label for="machine" >MACHINE ID: <input type="text" name="machine" required /></label>  
+    <label for="image" >SELECT FILE:<input type="file" name="image" required/></label>  
     <button>Submit</button>
-    </form method="post" action="/fileUpload" enctype="multipart/form-data">
-    <img />
+    </form method="patch" action="/productFileUpload" enctype="multipart/form-data">
+   
  
 </body>
 </html>
