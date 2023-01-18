@@ -1,36 +1,28 @@
-
 require('dotenv').config();
 //import packages
 const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
-
 //for HBD SUPPORT lib//
 const path = require("path");
 const hbs = require("hbs");
-//var expressHbs = require('express-handlebars');
-const { cookie } = require('request');
+
 //for HBD SUPPORT lib//
-
-
 const cors = require('cors');
-const md5 = require('md5');
 const CsvParser = require("json2csv").Parser;
 //////////bulck upload support lib/////////
 const multer = require("multer");
 const csv = require('csv-parser')
 const fs = require('fs')
 //napkin vending machine import 
-const https = require('https');
-const querystring = require('querystring');
+const https = require('https');//FIXME:Check and Remove//FIXME:
+const querystring = require('querystring');//FIXME:Check and Remove//FIXME:
 const cjs = require("crypto-js");
-
 const request = require('request');
 //import local db modules
 require("./db/conn");
 //const Company = require("./models/Company");
-
 const Employee = require("./models/employee");
 const User = require("./models/user");
 const Transaction = require("./models/transaction");
@@ -38,22 +30,17 @@ const Rejectedcard = require("./models/rejectedcards");
 const Pendingstatus = require("./models/pendingstatus");
 const Product = require("./models/product");
 const Machine = require("./models/machine");
-const Napkinvendtransaction = require("./models/napkinvendtransaction");
+const Napkinvendtransaction = require("./models/napkinvendtransaction");//FIXME:Check and Remove//FIXME:
 const Callbacktransaction = require("./models/callbacktransaction");
-const Napkinjobtable = require("./models/napkinjobtable");
+const Napkinjobtable = require("./models/napkinjobtable");//FIXME:Check and Remove//FIXME:
 const Refund = require("./models/refund");
 const Refundrequest = require("./models/refundrequest");
 const Credittable = require("./models/credittable");
-
 //import local modules 
 const auth = require("./middleware/auth");
 const email = require("./emailscript");
-//const zigg = require("./middleware/zigg");
 
 const port = process.env.PORT || 80;
-
-
-
 
 const staticPath = path.join(__dirname, "/src");
 console.log(staticPath);
@@ -63,7 +50,6 @@ app.set('view engine', 'hbs');
 app.set("views", templatePath);
 hbs.registerPartials(partialsPath);
 
-
 app.use(express.static(staticPath));
 app.use(cors());
 app.use(express.json());
@@ -71,76 +57,48 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 
-//app.use(express.static("public"))
-//SPARR LOCKER VEND CONTROLLER API //
-
-
-//Napkin vending machine...//
-//Phonepe  CAll back API //
-
-
-
-
-//Napkin vending machine...//
-//Phonepe  CAll back API //
-
-//create api code//////
-
-
-
 app.get("/", (req, res) => {
-   res.send("Smartvendz:403:pro13:14/11:b:2:+r:API/07/11");
+   res.send("Smartvendz:Backend");
+});
 
-})
+//TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
+app.post("/api/addNewUser", auth, async (req,res)=>{
+console.log(req.user);
+console.log(req.query);
+console.log(req.body);
+
+});
 
 
-var r_slot="";
-var r_orderid="";
-app.get("/riosh/:orderId", (req, res) => {
-    console.log("Riosh API");
-    console.log(req.params);
-    console.log(req.headers['cookie']);
- if (req.headers['cookie']=="8a287cd5-8536-a78c-2485-3defad241eb4"){
+//TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
 
- 
-   if (r_orderid==req.params.orderId){
-    res.status(200).json({"success":true, "slot":r_slot, "orderID":r_orderid});}
-   
-   else {
-    res.status(404).json({"success":false, "error":"order not found" });
-    }
-}else{
 
-    res.status(401).json({"success":false, "error":"Invlid Authentication Token" });
-}
 
- })
 
- app.get("/riosh/:orderId/:slot", (req, res) => {
-    console.log("Riosh API");
-    console.log(req.params);
-    r_slot=req.params.slot;
-    r_orderid=req.params.orderId;
-    if (req.headers['cookie']=="8a287cd5-8536-a78c-2485-3defad241eb4"){
-    res.status(200).json({"success":true, "orderAssignStatus":"success"});
-}else{
 
-    res.status(401).json({"success":false, "error":"Invlid Authentication Token" });
-}
- })
+
+
+
+
+
 
 //Snaxsmart Support///////////////////////////////////////////////////////////////////////////////
-
 app.get("/SnaxsmartSupport", (req, res) => {
     res.status(200).render("SnaxsmartSupport");
   
-  })
- 
-  app.get("/Submiterror", (req, res) => {
+});
+app.get("/Submiterror", (req, res) => {
      res.status(200).render("Submiterror");
-   })
- 
-  app.post("/api/SnaxsmartSupport", async (req, res) => {
+});
+app.get("/RefundRequestslkflfldffjd233qqez6y95jyleziggcoder55845jjgjfjkdfkfkkgjdtrutrutrjf",async (req, res) => {
+    console.log(req.url);
+    res.render('RefundRequests', {default:true ,notify:false, error:false ,popup:false,heading:"Transactions Records"});
+    console.log("Fetch Data and Send to client");
+
+});
+//Snaxsmart Support Render Pages/////////////////////////////////
+//Snaxsmart Support APIs////////////////////////////////////////
+app.post("/api/SnaxsmartSupport", async (req, res) => {
      try {
         console.log(req.query);
          console.log(req.body);
@@ -177,15 +135,8 @@ app.get("/SnaxsmartSupport", (req, res) => {
          console.log(e);
          res.status(200).render("Submiterror");
      }
-  })
-  app.get("/RefundRequestslkflfldffjd233qqez6y95jyleziggcoder55845jjgjfjkdfkfkkgjdtrutrutrjf",async (req, res) => {
-     console.log(req.url);
-     res.render('RefundRequests', {default:true ,notify:false, error:false ,popup:false,heading:"Transactions Records"});
-     console.log("Fetch Data and Send to client");
- 
- });
- 
-  app.get("/api/RefundRequestTable",async (req, res) => {
+});
+app.get("/api/RefundRequestTable",async (req, res) => {
      console.log(req.url);
     // console.log(req.user.user_id);
      try{
@@ -203,9 +154,8 @@ app.get("/SnaxsmartSupport", (req, res) => {
          console.log("/api/products: error in finding pending orders "+e)
          res.status(500).json({"status":"Failed error in internal server","data":{}});
      }
-  })
- 
-  app.get("/api/RefundRequestReport",async (req, res) => {
+}); 
+app.get("/api/RefundRequestReport",async (req, res) => {
      console.log("****************************************88");
      console.log(req.url);
      console.log(req.query);
@@ -294,9 +244,8 @@ app.get("/SnaxsmartSupport", (req, res) => {
          res.render('RefundRequests', {default:false, notify:true, error:true, popup:false, estatus:"Internal Server Error ",heading:"Refund Requests Records"});
          console.log(e);
      }
- })
- 
- app.post("/api/RefundRequestReport",async (req, res) => {
+}); 
+app.post("/api/RefundRequestReport",async (req, res) => {
      console.log(req.url);
      console.log(req.body);
      var trans = []; //change array name
@@ -386,31 +335,18 @@ app.get("/SnaxsmartSupport", (req, res) => {
         // res.render('transactionpage', {default:false, notify:true, error:true, popup:false, estatus:"Internal Server Error ",heading:"Transactions Records"});
         console.log(e);
      }
- })
+});
+//Snaxsmart Support APIs////////////////////////////////////////
+//Snaxsmart Support///////////////////////////////////////////////////////////////////////////////
  
- 
- //Snaxsmart Support///////////////////////////////////////////////////////////////////////////////
- 
-
-
-app.get("/register", (req, res) => {
-    res.send("register PAge ");
-
-})
-
-app.get("/login", (req, res) => {
-    res.send("Login Page ");
-
-})
-
+//TODO: Old APIs////////////////////////////////////////////////////////////////////////////////
 app.get("/logo", (req, res) => {
     res.sendFile(__dirname + '/snaxmartimg.png');
-})
-
+});
+   //FIXME: No need this Upload page this is only use for testing//FIXME:
 app.get("/upload", (req, res) => {
     res.sendFile(__dirname + '/index.html');
-})
-
+});
 app.post("/register", async (req, res) => {
     try {
         if (req.body.password === req.body.cpassword) {
@@ -449,11 +385,8 @@ app.post("/register", async (req, res) => {
         res.status(400).send(error);
 
     }
-})
-
+});
 app.post("/companyregister", auth, async (req, res) => {
-
-
     if (req.user.role == "superAdmin") {
         try {
             if (req.body.password === req.body.cpassword) {
@@ -499,12 +432,8 @@ app.post("/companyregister", auth, async (req, res) => {
     }
 
 
-})
-
-
+});
 app.post("/createmachine", auth, async (req, res) => {
-
-
     if (req.user.role == "superAdmin") {
         try {
             console.log(req.body.company_id);
@@ -531,9 +460,7 @@ app.post("/createmachine", auth, async (req, res) => {
     else {
         res.status(401).json({ "error": "You are not Have permisstion to Create Machine" });
     }
-})
-
-
+});
 app.get("/productcsv/:machine", auth, async (req, res) => {
     var trans = [];
     function transaction(x) {
@@ -586,19 +513,14 @@ app.get("/productcsv/:machine", auth, async (req, res) => {
         res.status(200).json({ "error": "server internal error" });
         //console.log(e);
     }
-})
-
+});
 app.post("/login", async (req, res) => {
-
     try {
         const email = req.body.email;
         const password = req.body.password;
         //console.log(`${email} and password is ${password}`);//comment for live 
         const userdata = await User.findOne({ contact_person_email: email }, { created_date: 0, otp: 0, admin: 0, __v: 0 });
         const passwordmatch = await bcrypt.compare(password, userdata.password);
-
-
-
         if (passwordmatch) {
             // res.cookie("cookie",userdata.token,{
             //     //  expires: new Date(Date.now() + 30000),
@@ -651,10 +573,8 @@ app.post("/login", async (req, res) => {
         res.status(400).json({ "error": error });
     }
 
-})
-
+});
 app.post("/passwordreset", async (req, res) => {
-
     try {
         if (req.body.new_password === req.body.new_cpassword) {
             const email = req.body.email;
@@ -682,9 +602,7 @@ app.post("/passwordreset", async (req, res) => {
     } catch (error) {
         res.status(400).send("Invalid UserName or Usee not Found\n" + error);
     }
-})
-
-
+});
 app.post("/forgotpass", async (req, res) => {
     try {
         const emailaddress = req.body.email;
@@ -700,8 +618,7 @@ app.post("/forgotpass", async (req, res) => {
     } catch (error) {
         res.status(200).json({ "status": "Username not Found", "error": error });
     }
-})
-
+});
 app.post("/otpverify", async (req, res) => {
     try {
         const emailaddress = req.body.email;
@@ -727,16 +644,21 @@ app.post("/otpverify", async (req, res) => {
     } catch (error) {
         res.status(200).json({ "status": "Username not Found", "error": error });
     }
-})
-
+});
 app.post("/user", auth, async (req, res) => {
-
     res.json(req.user._id);
     console.log(req.user._id);
-
-
-})
-
+});
+//TODO: Modify or remove It//////////////////////////////////
+app.get("/machinelist", auth, async (req, res) => {
+    console.log("used : /machinelist");
+    try {
+        const machinedata = await Machine.find({}, { "machine_id": 1 }).sort({ "created_date": -1 }).limit(3);
+        res.status(200).json(machinedata);
+    } catch (e) {
+        console.log(e);
+    }
+});
 //////////multer code/////////
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -760,13 +682,9 @@ const storage = multer.diskStorage({
         }
     }
 })
-
-//////////////////bulck data_file upload code ////////////////////////////////////////////////////////////////////////////////////////////////
-
 const upload = multer({ storage });
 //////////multer code/////////
-
-
+//TODO: bulck data_file upload code  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/fileUpload/:machine", auth, upload.single("image"), async (req, res) => {
 
     var rejectdata = [];
@@ -870,8 +788,8 @@ app.post("/fileUpload/:machine", auth, upload.single("image"), async (req, res) 
     }
 
     ///////////////////////////////////data_entry code //////////////////////////////  
-})
-
+});
+     //FIXME: Need to CHECK It is using or not, if not using anywhere remove it//FIXME:
 app.post("/singleEmpAdd/:machine", async (req, res) => {
     var rejectdata = [];
     function reject(x) {
@@ -892,9 +810,7 @@ app.post("/singleEmpAdd/:machine", async (req, res) => {
     console.log(req.body);
     console.log(req.params.machine);
     // res.status(200).json(req.body);
-
     const results = req.body;
-
     try {
 
         // const machinedata = await Machine.findOne({ machine_id: req.params.machine }, { machine_id: 1, total_slots: 1, admin: 1, company_id: 1 });
@@ -943,12 +859,9 @@ app.post("/singleEmpAdd/:machine", async (req, res) => {
 
                 }
             }
-
-
             // const r= reject();
             console.log(storeddata.length);
             console.log(rejectdata);
-
             console.log(rejectdata.length);
             if (rejectdata.length > 0) {
                 res.status(200).json({ "dataupload": "error", "reject_data": rejectdata, "stored_data": storeddata.length });
@@ -971,7 +884,6 @@ app.post("/singleEmpAdd/:machine", async (req, res) => {
     }
 
 });
-
 app.post("/productFileUpload/:machine", auth, upload.single("image"), async (req, res) => {
 
     var rejectdata = [];
@@ -1047,14 +959,9 @@ app.post("/productFileUpload/:machine", auth, upload.single("image"), async (req
         }
     }
     ///////////////////////////////////data_entry code //////////////////////////////  
-})
-
-
-app.patch(
-  "/productFileUpload/:machine",
-  auth,
-  upload.single("image"),
-  async (req, res) => {
+});
+  //TODO: Product Bulk Update///////////////
+app.patch("/productFileUpload/:machine",auth,upload.single("image"),async (req, res) => {
     var rejectdata = [];
     function reject(x) {
       if (x) {
@@ -1167,13 +1074,10 @@ app.patch(
     ///////////////////////////////////data_entry code //////////////////////////////
   }
 );
-////////////////bulck data_file upload code ////////////////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////Report generate part///////////////////////////////////
+//TODO: bulck data_file upload code  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Transaction JSON AND Dowanload CSV Report code  ////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/report", auth, async (req, res) => {
     console.log("/report");
-
-
     var data = [];
     function day(x) {
         if (x) {
@@ -1181,7 +1085,6 @@ app.post("/report", auth, async (req, res) => {
         }
         return data;
     }
-
     for (i = 0; i <= 6; i++) {
         const date_ob = new Date() - (86400000 * i);
         console.log(date_ob);
@@ -1202,23 +1105,6 @@ app.post("/report", auth, async (req, res) => {
     }
     res.status(200).json({ "data": data });
 })
-
-app.get("/machinelist", auth, async (req, res) => {
-    console.log("used : /machinelist");
-
-    try {
-        const machinedata = await Machine.find({}, { "machine_id": 1 }).sort({ "created_date": -1 }).limit(3);
-        res.status(200).json(machinedata);
-    } catch (e) {
-        console.log(e);
-    }
-
-
-
-
-})
-
-
 app.get("/csvreport", auth, async (req, res) => {
     console.log(req.body);
     var trans = [];
@@ -1305,10 +1191,8 @@ app.get("/csvreport", auth, async (req, res) => {
 
 
 })
-
-
-///////////////////Credit Logic APIs START/////////////////////////////////////////
-
+//TODO: Transaction JSON AND Dowanload CSV Report code  ////////////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Credit Upload, Vend From Credit API And JSON AND Dowanload CSV Report code  ////////////////////////////////////////////////////////////////////
 app.get("/credit/csvreport", auth, async (req, res) => {
     console.log(req.body);
     var trans = [];
@@ -1388,10 +1272,8 @@ app.get("/credit/csvreport", auth, async (req, res) => {
     }
 
 
-})
-
+});
 app.post("/creditupload/:machine", auth, upload.single("credit"), async (req, res) => {
-
     var rejectdata = [];
     function reject(x) {
         if (x) {
@@ -1509,8 +1391,7 @@ app.post("/creditupload/:machine", auth, upload.single("credit"), async (req, re
     }
 
     ///////////////////////////////////data_entry code //////////////////////////////  
-})
-
+});
 app.get("/credit/snaxsmart/:machine", async (req, res) => {
     if (!(req.query.card == (undefined))) {
         // console.log(req.query);
@@ -1700,12 +1581,9 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
             }
         }
     }
-})
-
+});
 app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
-  
     console.log(req.url);
-
     if (!(req.query.card == (undefined))) {
         console.log(req.query.card);
         req.query.card = parseInt(req.query.card, 16);
@@ -1724,7 +1602,6 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
             const mdata = await Machine.findOne({ machine_id: req.params.machine }, { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 });
             const edata = await Employee.findOne({ $and: [{ card_number: card }, { company_id: mdata.company_id }] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 });
             const pdata = await Product.findOne({ $and: [{ slote_number: slote }, { machine_id: req.params.machine }, { company_id: mdata.company_id }] }, { quantity: 0, created_date: 0, __v: 0 });
-
             //  console.log(mdata);
             //  console.log(edata);
             //  console.log(pdata);
@@ -1745,13 +1622,11 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
                 transaction.machine_id = req.params.machine;
                 //console.log(transaction);
                 transaction.save().then((d) => {
-
                     email.add(edata, d, pdata, mdata);
                     res.setHeader('cache-control', 'no-cache');
                     res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
                     res.status(200).send("success");
                     console.log("Send response : success");
-
                     //console.log(d);
                 }).catch((e) => {
                     res.setHeader('cache-control', 'no-cache');
@@ -1761,8 +1636,6 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
                     console.log(e);
                 })
                 ////////////////////transaction creation code end /////////////////////////
-
-
             } else {
                 const rejectedcard = new Rejectedcard();
                 rejectedcard.tdate = req.query.date;
@@ -1773,8 +1646,6 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
                 rejectedcard.local_admin = mdata.local_admin;
                 rejectedcard.machine_id = req.params.machine;
                 rejectedcard.error = "Invalid Card";
-
-
                 //console.log(transaction);
                 rejectedcard.save().then((d) => {
                     res.setHeader('cache-control', 'no-cache');
@@ -1812,12 +1683,8 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
         res.status(200).send("success");
     }
 })
-
-///////////////////Credit Logic APIs END////////////////////////////////////////////
-
-
-
-///////////////////Report generate part///////////////////////////////////
+//TODO: Credit Upload, Vend From Credit API And JSON AND Dowanload CSV Report code  ////////////////////////////////////////////////////////////////////
+//TODO: Normal Vend API for GVC and Smartvendz Vend Controller code ////////////////////////////////////////////////////////////////////////////////////
 app.get("/snaxsmart/:machine", async (req, res) => {
     if (!(req.query.card == (undefined))) {
         // console.log(req.query);
@@ -1835,9 +1702,9 @@ app.get("/snaxsmart/:machine", async (req, res) => {
             const edata = await Employee.findOne({ $and: [{ card_number: card }, { company_id: mdata.company_id }] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 });
             const pdata = await Product.findOne({ $and: [{ slote_number: slote }, { machine_id: req.params.machine }, { company_id: mdata.company_id }] }, { quantity: 0, created_date: 0, __v: 0 });
 
-            //  console.log(mdata);
-            //  console.log(edata);
-            //  console.log(pdata);
+             console.log(mdata);
+             console.log(edata);
+             console.log(pdata);
             if (edata) {
                 /////////////////////transaction creation code ///////////////////
                 const transaction = new Transaction();
@@ -1986,20 +1853,8 @@ app.get("/snaxsmart/:machine", async (req, res) => {
         }
     }
 })
-
 app.get("/h/snaxsmart/:machine", async (req, res) => {
-    //req.params.machine="SVZBLR0001";
-    // console.log("****************************************");
-    // console.log(req.query);
-    // console.log("****************************************");
-    // console.log("****************************************");
-    // console.log(req.body);
-    // console.log("****************************************");
-    // console.log("****************************************");
-    // console.log(req.params);
-    // console.log("****************************************");
     console.log(req.url);
-
     if (!(req.query.card == (undefined))) {
         console.log(req.query.card);
         req.query.card = parseInt(req.query.card, 16);
@@ -2103,78 +1958,8 @@ app.get("/h/snaxsmart/:machine", async (req, res) => {
         res.status(200).send("success");
     }
 })
-
-// app.get("/snaxsmart", async (req, res) => {
-//     req.params.machine = "SVZBLR001";
-
-//     if (!(req.query.card == (undefined))) {
-//         // console.log(req.query);
-//         // console.log(req.params);
-//         console.log("------------------------------------------------valid request-----------------------------------------------");
-//         try {
-//             const card = req.query.card;
-//             const slote = req.query.item;
-//             // const ma= req.params.machine;
-//             console.log(`Request No.1 comes for:~ machine=${req.params.machine} card=${req.query.card}| item=${req.query.item}| date=${req.query.date}| time= ${req.query.time}| serial=${req.query.serial}| status= ${req.query.status}| price=${req.query.price}| ~~~~~~~~~~~~`);
-//             /// query data /////
-//             // console.log(req.params.machine);
-//             // console.log(req.query);
-//             const mdata = await Machine.findOne({ machine_id: req.params.machine }, { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 });
-//             const edata = await Employee.findOne({ $and: [{ card_number: card }, { company_id: mdata.company_id }] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 });
-//             const pdata = await Product.findOne({ $and: [{ slote_number: slote }, { machine_id: req.params.machine }, { company_id: mdata.company_id }] }, { quantity: 0, created_date: 0, __v: 0 });
-
-//             //  console.log(mdata);
-//             //  console.log(edata);
-//             //  console.log(pdata);
-//             if (edata) {
-//                 /////////////////////transaction creation code ///////////////////
-//                 const transaction = new Transaction();
-//                 transaction.teid = edata.id;
-//                 transaction.titem = pdata.id;
-//                 transaction.tdate = req.query.date;
-//                 transaction.ttime = req.query.time;
-//                 transaction.tstatus = req.query.status;
-//                 transaction.tserial = req.query.serial;
-//                 transaction.price = req.query.price;
-//                 transaction.card_no = req.query.card;
-//                 transaction.admin_id = edata.admin_id;
-//                 transaction.super_admin = edata.super_admin;
-//                 transaction.local_admin = edata.local_admin;
-//                 transaction.machine_id = req.params.machine;
-//                 //console.log(transaction);
-//                 transaction.save().then((d) => {
-
-
-//                     res.status(200).send("success");
-//                     email.add(edata, d, pdata, mdata);
-//                     //console.log(d);
-//                 }).catch((e) => {
-//                     res.status(200).send("fail");
-//                     console.log("Error in saving Transaction");
-//                     console.log(e);
-//                 })
-//                 ////////////////////transaction creation code end /////////////////////////
-
-
-//             } else {
-//                 console.log("Invalid Card No.")
-//                 res.status(200).send("fail");
-//             }
-//         } catch (e) {
-//             console.log("Server Internal problem")
-//             console.log(e);
-//             res.status(200).send("fail");
-//         }
-//     }
-//     else {
-//         console.log("-------------------------------------ACK request----------------------------------");
-//         console.log(`Request no.2 is ACK =`);
-//         // console.log( req.query);
-//         res.status(200).send("success");
-//     }
-// })
-
-
+//TODO: Normal Vend API for GVC and Smartvendz Vend Controller code ////////////////////////////////////////////////////////////////////////////////////
+//TODO: Napkin Vending Machine QR Code for vending API Code/////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/napkinvendmachine/response/phonepe", async (req, res) => {
     async function callBackDataStoreDB(storeddata, np, rf, vs) {
         const callbackdata = new Callbacktransaction()
@@ -9378,8 +9163,6 @@ app.post("/napkinvendmachine/response/phonepe", async (req, res) => {
     else { console.log("xVerify not matched"); }
     res.status(200).send("success");
 });
-
-
 app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) => {
     //    console.log(req.params);
     //  console.log(req.headers);
@@ -9413,14 +9196,12 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
         console.log(e);
     }
 });
-
-//////////////////PULSAR VMC API//////////////////
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 var vmctestpayment=0;
 var vmcstoreid="snaxsmartstore1";
 var vmcterminalid="444f4r343443f443ff4";
 var vmcmerchantid="QRTV3442";
 var vmctransaction="34545h434uuhgg4";
-
 app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
        console.log(req.params);
        console.log(req.headers);
@@ -9440,7 +9221,6 @@ app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", asy
         console.log(e);
     }
 });
-
 app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
     console.log(req.params);
     //console.log(req.headers);
@@ -9460,7 +9240,6 @@ app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
      console.log(e);
  }
 });
-
 app.get("/vmctestqr/vendack/", async (req, res) => {
     console.log(req.params);
     //console.log(req.headers);
@@ -9480,6 +9259,20 @@ app.get("/vmctestqr/vendack/", async (req, res) => {
      console.log(e);
  }
 });
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.listen(port, () => { console.log(`connection is setup at ${port}`); })
