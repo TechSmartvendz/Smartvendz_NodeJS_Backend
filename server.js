@@ -1246,8 +1246,8 @@ app.get("/machine/sales/report", auth, async (req, res) => {
             $and: [{ $or: [{ admin_id: req.user._id }, { super_admin: req.user.id }] },
             {
                 created_date: {
-                    $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
-                    $lte: new Date(new Date(endDate).setHours(23, 59, 59))
+                    $gte: new Date(new Date(startDate)),
+                    $lte: new Date(new Date(endDate))
                 }
             },{machine_id:machine_id}
             ]
