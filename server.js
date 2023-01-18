@@ -79,6 +79,7 @@ console.log(req.body);
 
 app.get("/", (req, res) => {
    res.send("Smartvendz:403:pro15:18/1");
+});
 
 
 
