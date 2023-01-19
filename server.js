@@ -45,7 +45,7 @@ const Area = require("./models/area");
 
 //TODO:NEW DASHBOARD DB MODELS///////////////////////////////
 //import local modules 
-const auth = require("./middleware/auth");
+const auth= require("./middleware/auth");
 const email = require("./emailscript");
 
 const port = process.env.PORT || 80;
