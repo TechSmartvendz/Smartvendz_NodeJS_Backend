@@ -36,6 +36,14 @@ const Napkinjobtable = require("./models/napkinjobtable");//FIXME:Check and Remo
 const Refund = require("./models/refund");
 const Refundrequest = require("./models/refundrequest");
 const Credittable = require("./models/credittable");
+//TODO:NEW DASHBOARD DB MODELS///////////////////////////////
+const Country = require("./models/country");
+const State = require("./models/state");
+const City = require("./models/city");
+const Unit = require("./models/unit");
+const Area = require("./models/area");
+
+//TODO:NEW DASHBOARD DB MODELS///////////////////////////////
 //import local modules 
 const auth = require("./middleware/auth");
 const email = require("./emailscript");
@@ -57,6 +65,18 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 
+async function dbErrorHandle(error,res) {
+    console.log("***dbErrorHandle***");
+//    console.log(error);
+   if(error.code===11000){
+    res.status(500).json({ status: "fail", error: "Dublicate Data: Already Available in DB" });
+   }
+   else{
+    res.status(500).json({ status: "fail", error: error });
+   }  
+}
+
+
 app.get("/", (req, res) => {
    res.send("Smartvendz:Backend");
 });
@@ -70,6 +90,255 @@ console.log(req.body);
 });
 
 
+app.post("/api/Country", auth, async (req, res) => {
+//   console.log(req.user);
+//   console.log(req.url);
+  // console.log(req.query);
+//   console.log(req.body);
+  if (req.user.role === "superAdmin") {
+    try {
+      const createCountry = new Country(req.body);
+      createCountry.superAdmin = req.user.id;
+      const countryResult = await createCountry.save();
+      console.log(countryResult);
+      res.status(200).json({ status: "success", error: null });
+    } catch (error) {
+        await dbErrorHandle(error,res);
+    }
+  } else {
+    res.json({
+      status: "error",
+      error: "User don't have permission to add country",
+    });
+  }
+});
+app.post("/api/State", auth, async (req, res) => {
+    //   console.log(req.user);
+    //   console.log(req.url);
+      // console.log(req.query);
+    //   console.log(req.body);
+      if (req.user.role === "superAdmin") {
+        try {
+          const createState = new State(req.body);
+          createState.superAdmin = req.user.id;
+          const stateResult = await createState.save();
+          console.log(stateResult);
+          res.status(200).json({ status: "success", error: null });
+        } catch (error) {
+            await dbErrorHandle(error,res);
+        }
+      } else {
+        res.status(403).json({
+          status: "error",
+          error: "User don't have permission to add country",
+        });
+      }
+});
+app.post("/api/City", auth, async (req, res) => {
+        //   console.log(req.user);
+        //   console.log(req.url);
+          // console.log(req.query);
+        //   console.log(req.body);
+          if (req.user.role === "superAdmin") {
+            try {
+              const createCity = new City(req.body);
+              createCity.superAdmin = req.user.id;
+              const cityResult = await createCity.save();
+              console.log(cityResult);
+              res.status(200).json({ status: "success", error: null });
+            } catch (error) {
+                await dbErrorHandle(error,res);
+            }
+          } else {
+            res.status(403).json({
+              status: "error",
+              error: "User don't have permission to add country",
+            });
+          }
+});
+app.post("/api/Area", auth, async (req, res) => {
+    //   console.log(req.user);
+    //   console.log(req.url);
+    // console.log(req.query);
+    //   console.log(req.body);
+      if (req.user.role === "superAdmin") {
+        try {
+          const createArea = new Area(req.body);
+          createArea.superAdmin = req.user.id;
+          const areaResult = await createArea.save();
+          console.log(areaResult);
+          res.status(200).json({ status: "success", error: null });
+        } catch (error) {
+            await dbErrorHandle(error,res);
+        }
+      } else {
+        res.status(403).json({
+          status: "error",
+          error: "User don't have permission to add country",
+        });
+      }
+});
+app.post("/api/Unit", auth, async (req, res) => {
+    //   console.log(req.user);
+    //   console.log(req.url);
+      // console.log(req.query);
+    //   console.log(req.body);
+      if (req.user.role === "superAdmin") {
+        try {
+          const createUnit = new Unit(req.body);
+          createUnit.superAdmin = req.user.id;
+          const unitResult = await createUnit.save();
+        //   console.log(unitResult);
+          res.status(200).json({ status: "success", error: null });
+        } catch (error) {
+            await dbErrorHandle(error,res);
+        }
+      } else {
+        res.json({
+          status: "error",
+          error: "User don't have permission to add country",
+        });
+      }
+});
+
+app.get("/api/Country", auth, async (req, res) => {
+      console.log(req.url);
+        try {
+            const countryData = await Country.find({},{created_date:0,__v:0,superAdmin:0}).sort({ "country": 1 });
+            // console.log(countryData.length);
+            if(countryData.length){
+            // console.log(countryData);
+            res.status(200).json({ status: "success", data:countryData, error:null });
+         }
+         else {
+            res.status(200).json({ status: "fail", data:null, error:"data not found" });
+          }
+         
+        } catch (error) {
+            await dbErrorHandle(error,res);
+        }
+});
+app.get("/api/City", auth, async (req, res) => {
+    console.log(req.url);
+      try {
+          const cityData = await City.find({},{created_date:0,__v:0,superAdmin:0}).sort({ "city": 1 });
+        //   console.log(cityData.length);
+          if(cityData.length){
+        //   console.log(cityData);
+          res.status(200).json({ status: "success", data:cityData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        }
+       
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
+app.get("/api/City/:state", auth, async (req, res) => {
+    console.log(req.url);
+    console.log(req.params.state);
+      try {
+          const cityData = await City.find({state:req.params.state},{created_date:0,__v:0,superAdmin:0}).sort({ "city": 1 });
+        //   console.log(cityData.length);
+          if(cityData.length){
+        //   console.log(cityData);
+          res.status(200).json({ status: "success", data:cityData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        }
+
+       
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
+app.get("/api/State", auth, async (req, res) => {
+    console.log(req.url);
+      try {
+          const stateData = await State.find({},{created_date:0,__v:0,superAdmin:0}).sort({ "state": 1 });
+        //   console.log(stateData.length);
+          if(stateData.length){
+        //   console.log(stateData);
+          res.status(200).json({ status: "success", data:stateData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        }
+       
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
+app.get("/api/State/:country", auth, async (req, res) => {
+    console.log(req.url);
+    console.log(req.params.country);
+      try {
+          const stateData = await State.find({country:req.params.country},{created_date:0,__v:0,superAdmin:0}).sort({ "state": 1 });
+        //   console.log(stateData.length);
+          if(stateData.length){
+        //   console.log(stateData);
+          res.status(200).json({ status: "success", data:stateData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        } 
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
+app.get("/api/Area", auth, async (req, res) => {
+    console.log(req.url);
+      try {
+          const areaData = await Area.find({},{created_date:0,__v:0,superAdmin:0}).sort({ "area": 1 });
+        //   console.log(areaData.length);
+          if(areaData.length){
+        //   console.log(areaData);
+          res.status(200).json({ status: "success", data:areaData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        }
+       
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
+app.get("/api/Area/:city", auth, async (req, res) => {
+    console.log(req.url);
+    console.log(req.params.city);
+      try {
+          const areaData = await Area.find({city:req.params.city},{created_date:0,__v:0,superAdmin:0}).sort({ "city": 1 });
+        //   console.log(areaData.length);
+          if(areaData.length){
+        //   console.log(areaData);
+          res.status(200).json({ status: "success", data:areaData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        } 
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
+app.get("/api/Unit", auth, async (req, res) => {
+    console.log(req.url);
+      try {
+          const unitData = await Unit.find({},{created_date:0,__v:0,superAdmin:0}).sort({ "unit": 1 });
+          // console.log(unitData.length);
+          if(unitData.length){
+          // console.log(unitData);
+          res.status(200).json({ status: "success", data:unitData, error:null });
+       }
+       else {
+          res.status(200).json({ status: "fail", data:null, error:"data not found" });
+        }
+       
+      } catch (error) {
+          await dbErrorHandle(error,res);
+      }
+});
 //TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
 
 
