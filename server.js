@@ -76,6 +76,17 @@ async function dbErrorHandle(error,res) {
    }  
 }
 
+async function permissionDenied(error,res) {
+    console.log("***permissionDenied***");
+//    console.log(error);
+   if(error){
+    res.status(403).json({ status: "fail", error: "Permission Denied:"+error });
+   }
+   else{
+    res.status(403).json({ status: "fail", error: "Permission Denied" });
+   }  
+}
+
 
 app.get("/", (req, res) => {
    res.send("Smartvendz:Backend");
@@ -339,6 +350,83 @@ app.get("/api/Unit", auth, async (req, res) => {
           await dbErrorHandle(error,res);
       }
 });
+
+app.delete("/api/Country/:country", auth, async (req, res) => {
+    if (req.user.role === "superAdmin") {
+        Country.findOneAndDelete({ country:req.params.country}, async (error, doc) => {
+            if (error) {
+                await dbErrorHandle(error,res);
+            } else if(!doc) {
+                res.status(404).json({  status: "error", error: 'Document not found'});
+            } else {
+                res.status(200).json({  status: "success", message: 'Document deleted successfully.' });
+            }
+        });
+      } else {
+        await permissionDenied("Delete Country",res);
+      }
+});
+app.delete("/api/State/:state", auth, async (req, res) => {
+          if (req.user.role === "superAdmin") {
+            State.findOneAndDelete({ state:req.params.state}, async (error, doc) => {
+                if (error) {
+                    await dbErrorHandle(error,res);
+                } else if(!doc) {
+                    res.status(404).json({  status: "error", error: 'Document not found'});
+                } else {
+                    res.status(200).json({  status: "success", message: 'Document deleted successfully.' });
+                }
+            });
+          } else {
+            await permissionDenied("Delete State",res);
+          }
+});
+app.delete("/api/City/:city", auth, async (req, res) => {
+    if (req.user.role === "superAdmin") {
+        City.findOneAndDelete({ city:req.params.city}, async (error, doc) => {
+            if (error) {
+                await dbErrorHandle(error,res);
+            } else if(!doc) {
+                res.status(404).json({  status: "error", error: 'Document not found'});
+            } else {
+                res.status(200).json({  status: "success", message: 'Document deleted successfully.' });
+            }
+        });
+      } else {
+        await permissionDenied("Delete City",res);
+      }
+});
+app.delete("/api/Area/:area", auth, async (req, res) => {
+    if (req.user.role === "superAdmin") {
+        Area.findOneAndDelete({ area:req.params.area}, async (error, doc) => {
+            if (error) {
+                await dbErrorHandle(error,res);
+            } else if(!doc) {
+                res.status(404).json({  status: "error", error: 'Document not found'});
+            } else {
+                res.status(200).json({  status: "success", message: 'Document deleted successfully.' });
+            }
+        });
+      } else {
+        await permissionDenied("Delete Area",res);
+      }
+});
+app.delete("/api/Unit/:unit", auth, async (req, res) => {
+    if (req.user.role === "superAdmin") {
+        Unit.findOneAndDelete({ unit:req.params.unit}, async (error, doc) => {
+            if (error) {
+                await dbErrorHandle(error,res);
+            } else if(!doc) {
+                res.status(404).json({  status: "error", error: 'Document not found'});
+            } else {
+                res.status(200).json({  status: "success", message: 'Document deleted successfully.' });
+            }
+        });
+      } else {
+        await permissionDenied("Delete Unit",res);
+      }
+});
+
 //TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
 
 
