@@ -158,10 +158,9 @@ async function add(x, y,z,m) {
 
     // declare vars
     let fromMail = process.env.SENDER_EMAIL;
-    let toMail = "" + pendingdata.email + "," + pendingdata.manager_email;
+    let toMail = pendingdata.email ;
 
     // let toMail = 'gnbaviskar2@gmail.com,gnbaviskar3@gmail.com';
-
     let subject = 'Snaxmart Item Purchase Report';
     
     //<img style="margin-left: 436px;width: 179px;" src="http://13.233.20.108/logo" alt="Snaxsmart-Logo">
