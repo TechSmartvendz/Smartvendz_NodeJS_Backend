@@ -69,7 +69,7 @@ async function dbErrorHandle(error,res) {
     console.log("***dbErrorHandle***");
 //    console.log(error);
    if(error.code===11000){
-    res.status(500).json({ status: "fail", error: "Dublicate Data: Already Available in DB" });
+    res.status(200).json({ status: "fail", error: "Dublicate Data: Already Available in DB" });
    }
    else{
     res.status(500).json({ status: "fail", error: error });
