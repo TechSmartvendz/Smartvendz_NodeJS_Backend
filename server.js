@@ -102,10 +102,10 @@ console.log(req.body);
 
 
 app.post("/api/Country", auth, async (req, res) => {
-//   console.log(req.user);
-//   console.log(req.url);
-  // console.log(req.query);
-//   console.log(req.body);
+  console.log(req.user);
+  console.log(req.url);
+  console.log(req.query);
+  console.log(req.body);
   if (req.user.role === "superAdmin") {
     try {
       const createCountry = new Country(req.body);
@@ -124,17 +124,23 @@ app.post("/api/Country", auth, async (req, res) => {
   }
 });
 app.post("/api/State", auth, async (req, res) => {
-    //   console.log(req.user);
-    //   console.log(req.url);
-      // console.log(req.query);
-    //   console.log(req.body);
+  
       if (req.user.role === "superAdmin") {
         try {
+           const countryData = await Country.find({country:req.body.country},{created_date:0,__v:0,superAdmin:0}).sort({ "country": 1 });
+    
+            if(countryData.length){
           const createState = new State(req.body);
           createState.superAdmin = req.user.id;
           const stateResult = await createState.save();
           console.log(stateResult);
-          res.status(200).json({ status: "success", error: null });
+          res.status(200).json({ status: "success", error: null });}
+          else{
+            res.status(200).json({
+                status: "error",
+                error: "Country Not Found",
+              });
+          }
         } catch (error) {
             await dbErrorHandle(error,res);
         }
@@ -146,17 +152,22 @@ app.post("/api/State", auth, async (req, res) => {
       }
 });
 app.post("/api/City", auth, async (req, res) => {
-        //   console.log(req.user);
-        //   console.log(req.url);
-          // console.log(req.query);
-        //   console.log(req.body);
           if (req.user.role === "superAdmin") {
             try {
+                const stateDate = await State.find({state:req.body.state},{created_date:0,__v:0,superAdmin:0}).sort({ "country": 1 });
+    
+                if(stateDate.length){
               const createCity = new City(req.body);
               createCity.superAdmin = req.user.id;
               const cityResult = await createCity.save();
               console.log(cityResult);
               res.status(200).json({ status: "success", error: null });
+                }else{
+                res.status(200).json({
+                    status: "error",
+                    error: "State Not Found",
+                  });
+              }
             } catch (error) {
                 await dbErrorHandle(error,res);
             }
@@ -211,7 +222,6 @@ app.post("/api/Unit", auth, async (req, res) => {
         });
       }
 });
-
 app.get("/api/Country", auth, async (req, res) => {
       console.log(req.url);
         try {
@@ -350,6 +360,8 @@ app.get("/api/Unit", auth, async (req, res) => {
           await dbErrorHandle(error,res);
       }
 });
+
+
 
 app.delete("/api/Country/:country", auth, async (req, res) => {
     if (req.user.role === "superAdmin") {
