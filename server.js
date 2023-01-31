@@ -67,7 +67,7 @@ app.use(express.urlencoded({ extended: true }));
 
 async function dbErrorHandle(error,res) {
     console.log("***dbErrorHandle***");
-//    console.log(error);
+   console.log(error);
    if(error.code===11000){
     res.status(200).json({ status: "fail", error: "Dublicate Data: Already Available in DB" });
    }
@@ -360,12 +360,146 @@ app.get("/api/Unit", auth, async (req, res) => {
           await dbErrorHandle(error,res);
       }
 });
-
-
-
-app.delete("/api/Country/:country", auth, async (req, res) => {
+app.patch("/api/Country/:id", auth, async (req, res) => {
+    // console.log(req.user);
+    // console.log(req.url);
+    // console.log(req.query);
+    // console.log(req.body);
+    // console.log(req.params);
     if (req.user.role === "superAdmin") {
-        Country.findOneAndDelete({ country:req.params.country}, async (error, doc) => {
+        try {
+            
+            const DbData= await Country.findOneAndUpdate({ _id:req.params.id}, { $set:req.body});
+            if(DbData){
+            res.status(200).json({ status: "success", data:DbData, error:null });
+         }
+         else {
+            res.status(200).json({ status: "fail", data:null, error:"data not found" });
+          } 
+        } catch (error) {
+            await dbErrorHandle(error,res);
+        }
+    } else {
+      res.json({
+        status: "error",
+        error: "User don't have permission to add country",
+      });
+    }
+});
+app.patch("/api/State/:id", auth, async (req, res) => {
+        if (req.user.role === "superAdmin") {
+          try {
+             const countryData = await Country.find({country:req.body.country},{created_date:0,__v:0,superAdmin:0}).sort({ "country": 1 });
+      
+              if(countryData.length){
+                const DbData= await State.findOneAndUpdate({ _id:req.params.id}, { $set:req.body},{created_date:0,__v:0,superAdmin:0});
+                if(DbData){
+                res.status(200).json({ status: "success", data:DbData, error:null });
+             }
+             else {
+                res.status(200).json({ status: "fail", data:null, error:"data not found" });
+              } 
+            }
+            else{
+              res.status(200).json({
+                  status: "error",
+                  error: "Country Not Found",
+                });
+            }
+          } catch (error) {
+              await dbErrorHandle(error,res);
+          }
+        } else {
+          res.status(403).json({
+            status: "error",
+            error: "User don't have permission to add country",
+          });
+        }
+});
+app.patch("/api/City/:id", auth, async (req, res) => {
+            if (req.user.role === "superAdmin") {
+              try {
+                  const stateDate = await State.find({state:req.body.state},{created_date:0,__v:0,superAdmin:0}).sort({ "country": 1 });
+                  if(stateDate.length){
+                        const DbData= await City.findOneAndUpdate({ _id:req.params.id}, { $set:req.body},{created_date:0,__v:0,superAdmin:0});
+                        if(DbData){
+                        res.status(200).json({ status: "success", data:DbData, error:null });
+                     }
+                     else {
+                        res.status(200).json({ status: "fail", data:null, error:"data not found" });
+                      } 
+                    }else{
+                  res.status(200).json({
+                      status: "error",
+                      error: "State Not Found",
+                    });
+                }
+              } catch (error) {
+                  await dbErrorHandle(error,res);
+              }
+            } else {
+              res.status(403).json({
+                status: "error",
+                error: "User don't have permission to add country",
+              });
+            }
+});
+app.patch("/api/Area/:id", auth, async (req, res) => {
+    // console.log(req.user);
+    // console.log(req.url);
+    // console.log(req.query);
+    // console.log(req.body);
+    // console.log(req.params);
+    if (req.user.role === "superAdmin") {
+        try {
+            const cityDate = await City.find({city:req.body.city},{created_date:0,__v:0,superAdmin:0}).sort({ "country": 1 });
+            if(cityDate.length){
+                  const DbData= await Area.findOneAndUpdate({ _id:req.params.id}, { $set:req.body},{created_date:0,__v:0,superAdmin:0});
+                  if(DbData){
+                  res.status(200).json({ status: "success", data:DbData, error:null });
+               }
+               else {
+                  res.status(200).json({ status: "fail", data:null, error:"data not found" });
+                } 
+              }else{
+            res.status(200).json({
+                status: "error",
+                error: "City Not Found",
+              });
+          }
+        } catch (error) {
+            await dbErrorHandle(error,res);
+        }
+      } else {
+        res.status(403).json({
+          status: "error",
+          error: "User don't have",
+        });
+      }
+});
+app.patch("/api/Unit/:id", auth, async (req, res) => {
+        if (req.user.role === "superAdmin") {
+          try {
+            const DbData= await Unit.findOneAndUpdate({ _id:req.params.id}, { $set:req.body},{created_date:0,__v:0,superAdmin:0});
+            if(DbData){
+            res.status(200).json({ status: "success", data:DbData, error:null });
+         }
+         else {
+            res.status(200).json({ status: "fail", data:null, error:"data not found" });
+          } 
+          } catch (error) {
+              await dbErrorHandle(error,res);
+          }
+        } else {
+          res.json({
+            status: "error",
+            error: "User don't have permission",
+          });
+        }
+});
+app.delete("/api/Country/:id", auth, async (req, res) => {
+    if (req.user.role === "superAdmin") {
+        Country.findOneAndDelete({ _id:req.params.id}, async (error, doc) => {
             if (error) {
                 await dbErrorHandle(error,res);
             } else if(!doc) {
@@ -378,9 +512,12 @@ app.delete("/api/Country/:country", auth, async (req, res) => {
         await permissionDenied("Delete Country",res);
       }
 });
-app.delete("/api/State/:state", auth, async (req, res) => {
+app.delete("/api/State/:id", auth, async (req, res) => {
+    console.log(req.user);
+console.log(req.query);
+console.log(req.params);
           if (req.user.role === "superAdmin") {
-            State.findOneAndDelete({ state:req.params.state}, async (error, doc) => {
+            State.findOneAndDelete({ _id:req.params.id}, async (error, doc) => {
                 if (error) {
                     await dbErrorHandle(error,res);
                 } else if(!doc) {
@@ -393,9 +530,9 @@ app.delete("/api/State/:state", auth, async (req, res) => {
             await permissionDenied("Delete State",res);
           }
 });
-app.delete("/api/City/:city", auth, async (req, res) => {
+app.delete("/api/City/:id", auth, async (req, res) => {
     if (req.user.role === "superAdmin") {
-        City.findOneAndDelete({ city:req.params.city}, async (error, doc) => {
+        City.findOneAndDelete({ _id:req.params.id}, async (error, doc) => {
             if (error) {
                 await dbErrorHandle(error,res);
             } else if(!doc) {
@@ -408,9 +545,9 @@ app.delete("/api/City/:city", auth, async (req, res) => {
         await permissionDenied("Delete City",res);
       }
 });
-app.delete("/api/Area/:area", auth, async (req, res) => {
+app.delete("/api/Area/:id", auth, async (req, res) => {
     if (req.user.role === "superAdmin") {
-        Area.findOneAndDelete({ area:req.params.area}, async (error, doc) => {
+        Area.findOneAndDelete({ _id:req.params.id}, async (error, doc) => {
             if (error) {
                 await dbErrorHandle(error,res);
             } else if(!doc) {
@@ -423,9 +560,9 @@ app.delete("/api/Area/:area", auth, async (req, res) => {
         await permissionDenied("Delete Area",res);
       }
 });
-app.delete("/api/Unit/:unit", auth, async (req, res) => {
+app.delete("/api/Unit/:id", auth, async (req, res) => {
     if (req.user.role === "superAdmin") {
-        Unit.findOneAndDelete({ unit:req.params.unit}, async (error, doc) => {
+        Unit.findOneAndDelete({ _id:req.params.id}, async (error, doc) => {
             if (error) {
                 await dbErrorHandle(error,res);
             } else if(!doc) {
@@ -438,6 +575,9 @@ app.delete("/api/Unit/:unit", auth, async (req, res) => {
         await permissionDenied("Delete Unit",res);
       }
 });
+
+
+
 
 //TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
 
@@ -9645,16 +9785,19 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
         console.log(e);
     }
 });
+
 //TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
+
 var vmctestpayment=0;
 var vmcstoreid="snaxsmartstore1";
 var vmcterminalid="444f4r343443f443ff4";
 var vmcmerchantid="QRTV3442";
 var vmctransaction="34545h434uuhgg4";
+
 app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
        console.log(req.params);
        console.log(req.headers);
-       console.log(req.body);
+       console.log(req.body);  
     try {
         if (vmctestpayment == 0) {
             console.log("transaction not found");
@@ -9670,6 +9813,7 @@ app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", asy
         console.log(e);
     }
 });
+
 app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
     console.log(req.params);
     //console.log(req.headers);
@@ -9689,6 +9833,7 @@ app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
      console.log(e);
  }
 });
+
 app.post("/vmctestqr/vendack/", async (req, res) => {
     console.log(req.params);
     //console.log(req.headers);
@@ -9708,6 +9853,7 @@ app.post("/vmctestqr/vendack/", async (req, res) => {
      console.log(e);
  }
 });
+
 //TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 
 
