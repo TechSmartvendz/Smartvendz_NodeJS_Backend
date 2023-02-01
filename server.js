@@ -22,6 +22,7 @@ const cjs = require("crypto-js");
 const request = require('request');
 //import local db modules
 require("./db/conn");
+const mongoose =require("mongoose");
 //const Company = require("./models/Company");
 const Employee = require("./models/employee");
 const User = require("./models/user");
@@ -36,9 +37,12 @@ const Napkinjobtable = require("./models/napkinjobtable");//FIXME:Check and Remo
 const Refund = require("./models/refund");
 const Refundrequest = require("./models/refundrequest");
 const Credittable = require("./models/credittable");
+const QrData = require("./models/qrdata");
+const QrCredit = require("./models/qrcredit");
 //import local modules 
 const auth = require("./middleware/auth");
 const email = require("./emailscript");
+
 
 const port = process.env.PORT || 80;
 
@@ -73,6 +77,187 @@ console.log(req.body);
 //TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
 
 
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
+
+var vmctestpayment=0;
+var vmcstoreid="snaxsmartstore1";
+var vmcterminalid="444f4r343443f443ff4";
+var vmcmerchantid="QRTV3442";
+var vmctransaction="34545h434uuhgg4";
+
+app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
+       console.log(req.params);
+       console.log(req.headers);
+       console.log(req.body);
+    try {
+        if (vmctestpayment == 0) {
+            console.log("transaction not found");
+            res.status(400).json({ "success": false });
+        } else {
+            console.log("transaction found");
+                res.status(200).json({ "success": true, "credit_amount":vmctestpayment ,"transactionID":vmctransaction});
+                vmctestpayment=0;
+        }
+    }
+    catch (e) {
+        res.status(500).json({ "success": false });
+        console.log(e);
+    }
+});
+app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
+    console.log(req.params);
+    //console.log(req.headers);
+    console.log(req.body);
+ try {
+     if (req.params.amount == 0) {
+         console.log("transaction not found");
+         res.status(400).json({ "success": false, "payment_set":false });
+     } else {
+         console.log("transaction found");
+         vmctestpayment=req.params.amount;
+             res.status(200).json({ "success": true, "payment_set":true});
+     }
+ }
+ catch (e) {
+     res.status(500).json({ "success": false });
+     console.log(e);
+ }
+});
+app.post("/vmctestqr/vendack/", async (req, res) => {
+    console.log(req.params);
+    //console.log(req.headers);
+    console.log(req.body);
+ try {
+     if (req.body.transactionID!=vmctransaction) { //in main real api you need to compaire the refund amount and credit amount.
+         console.log("transaction not found");
+         res.status(400).json({ "success": false, "refund":false });
+     } else {
+         console.log("transaction found");
+         vmctestpayment=req.params.amount;
+             res.status(200).json({ "success": true, "refund":true});
+     }
+ }
+ catch (e) {
+     res.status(500).json({ "success": false });
+     console.log(e);
+ }
+});
+/////////////////////////////////////////////////////////////////////////////////////////////////
+app.get("/vmctestqr2/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
+    console.log(req.params);
+    //console.log(req.headers);
+    console.log(req.body);
+    
+   try {
+       var d = new Date();
+    d.setMinutes(d.getMinutes()-5);
+  
+       const qrdata = await QrCredit.findOne({ storeId: req.params.storeId, terminalId:req.params.terminalId, merchantId:req.params.merchantId,pending_job:false,vend_status:false,created_date: {$gte: d}}, {  __v: 0,activeStatus:0,qrPaymentGateway:0,machineType:0,});
+       if(qrdata){
+         console.log("🚀 ~ file: server.js:157 ~ app.get ~ qrdata", qrdata)
+         qrdata.pending_job=true
+         qrdata.machine=req.params.machine
+         const  jobdata = await qrdata.save();
+         console.log("🚀 ~ file: server.js:162 ~ app.get ~ jobdata", jobdata)
+         if(jobdata){
+            res.status(200).json({ "success": true, "credit_amount":jobdata.amount ,"transactionID":jobdata.internalTransactionId});
+         }else{
+            res.status(400).json({ "success": false });
+         }
+        
+     } else {
+        res.status(500).json({ "success": false });
+     }
+ }
+ catch (e) {
+     res.status(500).json({ "success": false });
+     console.log(e);
+ }
+});
+app.get("/vmctestqr2/setcredit/:amount", async (req, res) => {
+    var vmctestpayment=0;
+    var vmcstoreid="snaxsmartstore1";
+    var vmcterminalid="444f4r343443f443ff4";
+    var vmcmerchantid="QRTV3442";
+    var vmctransaction="34545h434uuhgg4";
+ console.log(req.params);
+ //console.log(req.headers);
+ console.log(req.body);
+
+try {
+    
+    const qrdata = await QrData.findOne({ storeId: vmcstoreid, terminalId:vmcterminalid, merchantId:vmcmerchantid}, { created_date: 0, __v: 0,_id:0,activeStatus:0,qrPaymentGateway:0,machineType:0,});
+    console.log("🚀 ~ file: server.js:174 ~ app.get ~ qrdata", qrdata)
+    
+    if(qrdata){
+      
+        const data = new QrCredit(qrdata);
+        data._id = mongoose.Types.ObjectId();
+        data.isNew = true; 
+        data.amount=req.params.amount
+        const  qrcredit = await data.save();
+       if(qrcredit)
+        console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrcredit)
+        res.status(200).json({ "success": true, "payment_set":true});
+       }else{
+        console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrcredit)
+        res.status(400).json({ "success": false, "payment_set":false });
+       }
+    }
+      
+catch (e) {
+    console.log(e);
+  res.status(500).json({ "success": false });
+  
+}
+});
+app.post("/vmctestqr2/vendack/", async (req, res) => {
+ console.log(req.params);
+ //console.log(req.headers);
+ console.log(req.body);
+try {
+  if (req.body.transactionID!=vmctransaction) { //in main real api you need to compaire the refund amount and credit amount.
+      console.log("transaction not found");
+      res.status(400).json({ "success": false, "refund":false });
+  } else {
+      console.log("transaction found");
+      vmctestpayment=req.params.amount;
+          res.status(200).json({ "success": true, "refund":true});
+  }
+}
+catch (e) {
+  res.status(500).json({ "success": false });
+  console.log(e);
+}
+});
+app.post("/vmctestqr2/setQRcode/",auth , async (req, res) => {
+    console.log(req.params);
+    console.log(req.body);
+    if (req.user.role == "superAdmin") {
+        try {   const data = new QrData(req.body);
+                const  qrdata = await data.save();
+               if(qrdata){
+                console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrdata)
+                res.status(200).json({ "status": "Machine Created Successfully","data":qrdata });
+               }else{
+                console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrdata)
+                res.status(200).json({ "status": "failed"});
+               }
+            }
+        catch (error) {
+            console.log("🚀 ~ file: server.js:219 ~ app.post ~ error", error)
+            res.status(200).json({ "status": "failed","error":"internal server error "});
+        }
+    }
+    else {
+        res.status(401).json({"status": "failed", "error": "You are not Have permission to add QR DATA" });
+    }
+
+
+
+});
+
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 
 
 
@@ -9276,70 +9461,7 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
         console.log(e);
     }
 });
-//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
-var vmctestpayment=0;
-var vmcstoreid="snaxsmartstore1";
-var vmcterminalid="444f4r343443f443ff4";
-var vmcmerchantid="QRTV3442";
-var vmctransaction="34545h434uuhgg4";
-app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
-       console.log(req.params);
-       console.log(req.headers);
-       console.log(req.body);
-    try {
-        if (vmctestpayment == 0) {
-            console.log("transaction not found");
-            res.status(400).json({ "success": false });
-        } else {
-            console.log("transaction found");
-                res.status(200).json({ "success": true, "credit_amount":vmctestpayment ,"transactionID":vmctransaction});
-                vmctestpayment=0;
-        }
-    }
-    catch (e) {
-        res.status(500).json({ "success": false });
-        console.log(e);
-    }
-});
-app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
-    console.log(req.params);
-    //console.log(req.headers);
-    console.log(req.body);
- try {
-     if (req.params.amount == 0) {
-         console.log("transaction not found");
-         res.status(400).json({ "success": true, "payment_set":true });
-     } else {
-         console.log("transaction found");
-         vmctestpayment=req.params.amount;
-             res.status(200).json({ "success": true, "payment_set":true});
-     }
- }
- catch (e) {
-     res.status(500).json({ "success": false });
-     console.log(e);
- }
-});
-app.post("/vmctestqr/vendack/", async (req, res) => {
-    console.log(req.params);
-    //console.log(req.headers);
-    console.log(req.body);
- try {
-     if (req.body.transactionID!=vmctransaction) { //in main real api you need to compaire the refund amount and credit amount.
-         console.log("transaction not found");
-         res.status(400).json({ "success": false, "refund":false });
-     } else {
-         console.log("transaction found");
-         vmctestpayment=req.params.amount;
-             res.status(200).json({ "success": true, "refund":true});
-     }
- }
- catch (e) {
-     res.status(500).json({ "success": false });
-     console.log(e);
- }
-});
-//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
+
 
 
 
