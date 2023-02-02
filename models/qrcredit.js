@@ -32,7 +32,27 @@ const qrcredit=new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    refundstatus:{
+    cycleDone:{
+        type:Boolean,
+        default:false
+    },
+    refund:{
+        type:Boolean,
+        default:false
+    },
+    refundStatus:{
+        type:String,
+        default:"NA"
+    },
+    refundAmount:{
+        type:Number,
+        default:0
+    },
+    refundError:{
+        type:String,
+        default:"NA"
+    },
+    refundDone:{
         type:Boolean,
         default:false
     },
