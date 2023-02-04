@@ -450,11 +450,11 @@ app.get("/api/RefundRequestReport",async (req, res) => {
          if (!(data.length==0)) {
              for (i = 0; i < data.length; i++) {
                  console.log(data[i].created_date);
-                 dp=data[i].created_date+"";
-                 dp=dp.slice(0, 24);
-                 console.log(dp)
+                //  dp=data[i].created_date+"";
+                //  dp=dp.slice(0, 24);
+                //  console.log(dp)
                  const j = {
-                    "created_date":dp,
+                    "created_date": data[i].created_date.toLocaleString(),
                     "ename": data[i].ename,
                     "phone": data[i].phone,
                     "machine": data[i].machine,
@@ -539,11 +539,11 @@ app.post("/api/RefundRequestReport",async (req, res) => {
          if (!(data.length==0)) {
              for (i = 0; i < data.length; i++) {
                  console.log(data[i].created_date);
-                 dp=data[i].created_date+"";
-                 dp=dp.slice(0, 24);
-                 console.log(dp)
+                //  dp=data[i].created_date+"";
+                //  dp=dp.slice(0, 24);
+                //  console.log(dp)
                  const j = {
-                     "created_date":dp,
+                     "created_date": data[i].created_date.toLocaleString(),
                      "ename": data[i].ename,
                      "phone": data[i].phone,
                      "machine": data[i].machine,
@@ -1438,7 +1438,6 @@ app.get("/csvreport", auth, async (req, res) => {
         }
         return trans;
     }
-
     try {
         const startDate = req.body.start;
         const endDate = req.body.end;
@@ -1453,8 +1452,6 @@ app.get("/csvreport", auth, async (req, res) => {
             }
             ]
         })
-
-
         console.log(data.length);
         if (!(data.lenght == 0)) {
             for (i = 0; i < data.length; i++) {
@@ -1478,9 +1475,10 @@ app.get("/csvreport", auth, async (req, res) => {
                       }
 
                 }
+                // let text = d.toLocaleString();
                 console.log(edata);
                 const j = {
-                    "created_date": data[i].created_date,
+                    "created_date": data[i].created_date.toLocaleString(),
                     "card_number": edata.card_number,
                     "employee_name": edata.employee_name,
                     "email": edata.email,
@@ -1553,7 +1551,7 @@ app.get("/credit/csvreport", auth, async (req, res) => {
         if (!(data.lenght == 0)) {
             for (i = 0; i < data.length; i++) {
                 const j = {
-                    "created_date": data[i].created_date,
+                    "created_date":  data[i].created_date.toLocaleString(),
                     "credit_month":data[i].credit_month,
                     "card_number":  data[i].card_number,
                     "employee_name":  data[i].employee_name,
