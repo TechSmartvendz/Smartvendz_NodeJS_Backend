@@ -1442,8 +1442,8 @@ app.get("/csvreport", auth, async (req, res) => {
         const startDate = req.body.start;
         const endDate = req.body.end;
         console.log(`${startDate} to ${endDate}`);
-        const data = await Transaction.find({
-            $and: [{ $or: [{ admin_id: req.user._id }, { super_admin: req.user.id }] },
+        const data = await Pendingstatus.find({
+            $and: [{machine_id:req.body.machine_id},{status:"Completed"},
             {
                 created_date: {
                     $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
@@ -1456,38 +1456,38 @@ app.get("/csvreport", auth, async (req, res) => {
         if (!(data.lenght == 0)) {
             for (i = 0; i < data.length; i++) {
 
-                const pdata = await Product.findOne({ _id: data[i].titem });
+                // const pdata = await Product.findOne({ _id: data[i].titem });
 
-                  var edata = await Employee.findOne({ card_number: data[i].card_no });
+                //   var edata = await Employee.findOne({ card_number: data[i].card_no });
 
-                console.log("employee data="+edata);
-                if(edata==null)
+                // console.log("employee data="+edata);
+                // if(edata==null)
 
-                { 
-                    console.log("employee data not found in employee table");
-                     edata={
-                      "card_number":data[i].card_no,
-                      "employee_name":data[i].teid,
-                       "email": "",
-                      "manager_email": "",
-                      "cost_center": "",
+                // { 
+                //     console.log("employee data not found in employee table");
+                //      edata={
+                //       "card_number":data[i].card_no,
+                //       "employee_name":data[i].teid,
+                //        "email": "",
+                //       "manager_email": "",
+                //       "cost_center": "",
 
-                      }
+                //       }
 
-                }
-                // let text = d.toLocaleString();
-                console.log(edata);
+                // }
+                // // let text = d.toLocaleString();
+                // console.log(edata);
                 const j = {
                     "created_date": data[i].created_date.toLocaleString(),
-                    "card_number": edata.card_number,
-                    "employee_name": edata.employee_name,
-                    "email": edata.email,
-                    "manager_email": edata.manager_email,
-                    "cost_center": edata.cost_center,
-                    "item_description": pdata.item_description,
-                    "slote_number": pdata.slote_number,
-                    "machine_number": pdata.machine_id,
-                    "item_price": pdata.item_price
+                    "card_number": data[i].card_number,
+                    "employee_name": data[i].employee_name,
+                    "email": data[i].email,
+                    "manager_email": data[i].manager_email,
+                    "cost_center": "",
+                    "item_description": data[i].item_description,
+                    "slote_number": data[i].slote_number,
+                    "machine_number": data[i].machine_id,
+                    "item_price": data[i].item_price
                 }
                 //console.log(j);
                 transaction(j);
