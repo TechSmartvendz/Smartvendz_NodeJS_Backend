@@ -454,7 +454,7 @@ app.get("/api/RefundRequestReport",async (req, res) => {
                 //  dp=dp.slice(0, 24);
                 //  console.log(dp)
                  const j = {
-                    "created_date": data[i].created_date.toLocaleString(),
+                    "created_date": data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "ename": data[i].ename,
                     "phone": data[i].phone,
                     "machine": data[i].machine,
@@ -543,7 +543,7 @@ app.post("/api/RefundRequestReport",async (req, res) => {
                 //  dp=dp.slice(0, 24);
                 //  console.log(dp)
                  const j = {
-                     "created_date": data[i].created_date.toLocaleString(),
+                     "created_date": data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                      "ename": data[i].ename,
                      "phone": data[i].phone,
                      "machine": data[i].machine,
@@ -1395,7 +1395,7 @@ app.get("/machine/sales/report", auth, async (req, res) => {
                    result.sold_quantity+=1;
                 }else {
                 const j = {
-                    "date_time":pdata.created_date.toLocaleString(),
+                    "date_time":pdata.created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "company_id": data[i].company_id,
                     "machine_id": data[i].machine_id,
                     "slote_number": pdata.slote_number,
@@ -1475,10 +1475,10 @@ app.get("/csvreport", auth, async (req, res) => {
                 //       }
 
                 // }
-                // // let text = d.toLocaleString();
+                // // let text = d.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'});;
                 // console.log(edata);
                 const j = {
-                    "created_date": data[i].created_date.toLocaleString(),
+                    "created_date": data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "card_number": data[i].card_number,
                     "employee_name": data[i].employee_name,
                     "email": data[i].email,
@@ -1551,7 +1551,7 @@ app.get("/credit/csvreport", auth, async (req, res) => {
         if (!(data.lenght == 0)) {
             for (i = 0; i < data.length; i++) {
                 const j = {
-                    "created_date":  data[i].created_date.toLocaleString(),
+                    "created_date":  data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "credit_month":data[i].credit_month,
                     "card_number":  data[i].card_number,
                     "employee_name":  data[i].employee_name,
