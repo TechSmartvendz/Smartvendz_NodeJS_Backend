@@ -93,14 +93,6 @@ app.get("/", (req, res) => {
 });
 
 //TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
-app.post("/api/addNewUser", auth, async (req,res)=>{
-console.log(req.user);
-console.log(req.query);
-console.log(req.body);
-
-});
-
-
 app.post("/api/Country", auth, async (req, res) => {
   console.log(req.user);
   console.log(req.url);
@@ -575,10 +567,14 @@ app.delete("/api/Unit/:id", auth, async (req, res) => {
         await permissionDenied("Delete Unit",res);
       }
 });
+app.get("/time/:time", async (req, res) => {
+console.log("🚀 ~ file: server.js:573 ~ app.get ~ req.params.time", req.params.time)
+const d = new Date(req.params.time);
+console.log("🚀 ~ file: server.js:573 ~ app.get ~ d", d)
 
-
-
-
+let text = d.toLocaleTimeString();
+res.status(200).send(text);
+});
 //TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
 
 
@@ -9786,14 +9782,14 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
     }
 });
 
-//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 
+
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 var vmctestpayment=0;
 var vmcstoreid="snaxsmartstore1";
 var vmcterminalid="444f4r343443f443ff4";
 var vmcmerchantid="QRTV3442";
 var vmctransaction="34545h434uuhgg4";
-
 app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
        console.log(req.params);
        console.log(req.headers);
@@ -9813,7 +9809,6 @@ app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", asy
         console.log(e);
     }
 });
-
 app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
     console.log(req.params);
     //console.log(req.headers);
@@ -9833,7 +9828,6 @@ app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
      console.log(e);
  }
 });
-
 app.post("/vmctestqr/vendack/", async (req, res) => {
     console.log(req.params);
     //console.log(req.headers);
@@ -9853,12 +9847,7 @@ app.post("/vmctestqr/vendack/", async (req, res) => {
      console.log(e);
  }
 });
-
 //TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
-
-
-
-
 
 
 
