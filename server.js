@@ -1395,7 +1395,7 @@ app.get("/machine/sales/report", auth, async (req, res) => {
                    result.sold_quantity+=1;
                 }else {
                 const j = {
-                    "date_time":pdata.created_date,
+                    "date_time":pdata.created_date.toLocaleString(),
                     "company_id": data[i].company_id,
                     "machine_id": data[i].machine_id,
                     "slote_number": pdata.slote_number,
