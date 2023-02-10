@@ -590,7 +590,6 @@ res.status(200).send(text);
 //Snaxsmart Support///////////////////////////////////////////////////////////////////////////////
 app.get("/SnaxsmartSupport", (req, res) => {
     res.status(200).render("SnaxsmartSupport");
-  
 });
 app.get("/Submiterror", (req, res) => {
      res.status(200).render("Submiterror");
@@ -9781,8 +9780,6 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
         console.log(e);
     }
 });
-
-
 
 //TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 var vmctestpayment=0;
