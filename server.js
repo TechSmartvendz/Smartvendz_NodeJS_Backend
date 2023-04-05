@@ -1867,7 +1867,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
                     email.juniperEmail(pending);
                 }
                 else {
-                    email.pendingconfirm(pending);
+                    // email.pendingconfirm(pending);
                 }
 
                 const transaction = await Transaction.findOneAndUpdate({ $and: [{ id: pending.transaction_id }, { status: "InProcess" }] }, { $set: { status: "Completed" } }).sort({ "created_date": -1 });
