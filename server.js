@@ -1947,7 +1947,7 @@ app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
                 transaction.machine_id = req.params.machine;
                 //console.log(transaction);
                 transaction.save().then((d) => {
-                    email.add(edata, d, pdata, mdata);
+                    // email.add(edata, d, pdata, mdata);
                     res.setHeader('cache-control', 'no-cache');
                     res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
                     res.status(200).send("success");
@@ -2138,7 +2138,7 @@ app.get("/snaxsmart/:machine", async (req, res) => {
                     email.juniperEmail(pending);
                 }
                 else {
-                    email.pendingconfirm(pending);
+                    // email.pendingconfirm(pending);
                 }
 
                 const transaction = await Transaction.findOneAndUpdate({ $and: [{ id: pending.transaction_id }, { status: "InProcess" }] }, { $set: { status: "Completed" } }).sort({ "created_date": -1 });
@@ -2220,7 +2220,7 @@ app.get("/h/snaxsmart/:machine", async (req, res) => {
                 //console.log(transaction);
                 transaction.save().then((d) => {
 
-                    email.add(edata, d, pdata, mdata);
+                    // email.add(edata, d, pdata, mdata);
                     res.setHeader('cache-control', 'no-cache');
                     res.setHeader('content-type', 'text/html;charset=ISO-8859-1');
                     res.status(200).send("success");
