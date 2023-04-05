@@ -22,6 +22,7 @@ const cjs = require("crypto-js");
 const request = require('request');
 //import local db modules
 require("./db/conn");
+const mongoose =require("mongoose");
 //const Company = require("./models/Company");
 const Employee = require("./models/employee");
 const User = require("./models/user");
@@ -36,9 +37,13 @@ const Napkinjobtable = require("./models/napkinjobtable");//FIXME:Check and Remo
 const Refund = require("./models/refund");
 const Refundrequest = require("./models/refundrequest");
 const Credittable = require("./models/credittable");
+const QrData = require("./models/qrdata");
+const QrCredit = require("./models/qrcredit");
+const QrTransaction = require("./models/qrtransactions");
 //import local modules 
 const auth = require("./middleware/auth");
 const email = require("./emailscript");
+
 
 const port = process.env.PORT || 80;
 
@@ -57,22 +62,261 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 
+
+async function makeTransaction(vendData){
+   
+        try {
+            qrcredit = await QrCredit.findOne({  internalTransactionId: vendData.transactionID,cycleDone:true}, { created_date: 0, __v: 0,_id:0,activeStatus:0,qrPaymentGateway:0,machineType:0});
+            console.log("🚀 ~ file: server.js:69 ~ makeTransaction ~ qrcredit", qrcredit)
+           
+            if(qrcredit){
+                 data = new QrTransaction();
+                data.qrId=qrcredit.qrId
+                data.qrCreditID=qrcredit.internalTransactionId
+                data.machine_id=qrcredit.machineId
+                data.slote_number=vendData.item_slot
+                data.item_price=vendData.item_price
+                data.status="Completed"
+                data = await data.save()
+               if(data)
+               console.log("#################################TRANSACTION RECODED #############################################")
+                
+               }else{
+                console.log("#################################TRANSACTION RECODED failed  #############################################")
+               
+               }
+            }
+              
+        catch (e) {
+            console.log(e);
+            console.log(" ~ file: server.js:92 ~ makeTransaction ~ e", e)
+        ;
+          
+        }
+   
+
+}  
+
 app.get("/", (req, res) => {
    res.send("Smartvendz:Backend");
 });
 
-//TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
-app.post("/api/addNewUser", auth, async (req,res)=>{
-console.log(req.user);
-console.log(req.query);
-console.log(req.body);
+
+
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
+
+var vmctestpayment=0;
+var vmcstoreid="snaxsmartstore1";
+var vmcterminalid="444f4r343443f443ff4";
+var vmcmerchantid="QRTV3442";
+var vmctransaction="34545h434uuhgg4";
+
+
+// app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
+//        console.log(req.params);
+//        console.log(req.headers);
+//        console.log(req.body);
+//     try {
+//         if (vmctestpayment == 0) {
+//             console.log("transaction not found");
+//             res.status(400).json({ "success": false });
+//         } else {
+//             console.log("transaction found");
+//                 res.status(200).json({ "success": true, "credit_amount":vmctestpayment ,"transactionID":vmctransaction});
+//                 vmctestpayment=0;
+//         }
+//     }
+//     catch (e) {
+//         res.status(500).json({ "success": false });
+//         console.log(e);
+//     }
+// });
+// app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
+//     console.log(req.params);
+//     //console.log(req.headers);
+//     console.log(req.body);
+//  try {
+//      if (req.params.amount == 0) {
+//          console.log("transaction not found");
+//          res.status(400).json({ "success": false, "payment_set":false });
+//      } else {
+//          console.log("transaction found");
+//          vmctestpayment=req.params.amount;
+//              res.status(200).json({ "success": true, "payment_set":true});
+//      }
+//  }
+//  catch (e) {
+//      res.status(500).json({ "success": false });
+//      console.log(e);
+//  }
+// });
+// app.post("/vmctestqr/vendack/", async (req, res) => {
+//     console.log(req.params);
+//     //console.log(req.headers);
+//     console.log(req.body);
+//  try {
+//      if (req.body.transactionID!=vmctransaction) { //in main real api you need to compaire the refund amount and credit amount.
+//          console.log("transaction not found");
+//          res.status(400).json({ "success": false, "refund":false });
+//      } else {
+//          console.log("transaction found");
+//          vmctestpayment=req.params.amount;
+//              res.status(200).json({ "success": true, "refund":true});
+//      }
+//  }
+//  catch (e) {
+//      res.status(500).json({ "success": false });
+//      console.log(e);
+//  }
+// });
+/////////////////////////////////////////////////////////////////////////////////////////////////
+app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
+    console.log(req.params);
+    //console.log(req.headers);
+    console.log(req.body);
+   try {
+       var d = new Date();
+    d.setMinutes(d.getMinutes()-5);
+  
+       const qrdata = await QrCredit.findOne({ storeId: req.params.storeId, terminalId:req.params.terminalId, merchantId:req.params.merchantId,pending_job:false,vend_status:false,created_date: {$gte: d}}, {  __v: 0,activeStatus:0,qrPaymentGateway:0,machineType:0,});
+       if(qrdata){
+         console.log("🚀 ~ file: server.js:157 ~ app.get ~ qrdata", qrdata)
+         qrdata.pending_job=true
+         qrdata.machine=req.params.machine
+         const  jobdata = await qrdata.save();
+         console.log("🚀 ~ file: server.js:162 ~ app.get ~ jobdata", jobdata)
+         if(jobdata){
+            res.status(200).json({ "success": true, "credit_amount":jobdata.amount ,"transactionID":jobdata.internalTransactionId});
+         }else{
+            res.status(400).json({ "success": false });
+         }
+        
+     } else {
+        res.status(500).json({ "success": false });
+     }
+ }
+ catch (e) {
+     res.status(500).json({ "success": false });
+     console.log(e);
+ }
+});
+app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
+    var vmctestpayment=0;
+    var vmcstoreid="snaxsmartstore1";
+    var vmcterminalid="444f4r343443f443ff4";
+    var vmcmerchantid="QRTV3442";
+    var vmctransaction="34545h434uuhgg4";
+ console.log(req.params);
+ //console.log(req.headers);
+ console.log(req.body);
+
+try {
+    
+    const qrdata = await QrData.findOne({ storeId: vmcstoreid, terminalId:vmcterminalid, merchantId:vmcmerchantid}, { created_date: 0, __v: 0,_id:0,activeStatus:0,qrPaymentGateway:0,machineType:0,});
+    console.log("🚀 ~ file: server.js:174 ~ app.get ~ qrdata", qrdata)
+    
+    if(qrdata){
+      
+        const data = new QrCredit(qrdata);
+        data._id = mongoose.Types.ObjectId();
+        data.isNew = true; 
+        data.amount=req.params.amount
+        const  qrcredit = await data.save();
+       if(qrcredit)
+        console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrcredit)
+        res.status(200).json({ "success": true, "payment_set":true});
+       }else{
+        console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrcredit)
+        res.status(400).json({ "success": false, "payment_set":false });
+       }
+    }
+      
+catch (e) {
+    console.log(e);
+  res.status(500).json({ "success": false });
+  
+}
+});
+app.post("/vmctestqr/vendack/", async (req, res) => {
+ console.log(req.params);
+ //console.log(req.headers);
+ console.log(req.body);
+try {
+   
+    const qrdata = await QrCredit.findOne({ internalTransactionId: req.body.transactionID,pending_job:true,vend_status:false,cycleDone:false}, {  __v: 0,activeStatus:0,qrPaymentGateway:0,machineType:0,});
+    if(qrdata){
+
+        if(req.body.vend_status=="success"){
+      console.log("🚀 ~ file: server.js:157 ~ app.get ~ qrdata", qrdata)
+      qrdata.pending_job=false  
+      qrdata.vend_status=true
+      qrdata.cycleDone=true
+       }else {
+        qrdata.cycleDone=true 
+       }
+
+      if(req.body.refund){
+        qrdata.refund=true
+        qrdata.refundAmount=req.body.refund_amount
+        qrdata.refundStatus="initiate"        
+        const  jobdata = await qrdata.save();
+        console.log("🚀 ~ file: server.js:162 ~ app.get ~ jobdata", jobdata)
+        if(jobdata){
+            res.status(200).json({ "success": true});
+            const r=await makeTransaction(req.body);
+        }else{
+            res.status(400).json({ "success": false});
+        }
+      
+    }else{
+        const  jobdata = await qrdata.save();
+        console.log("🚀 ~ file: server.js:162 ~ app.get ~ jobdata", jobdata)
+        if(jobdata){
+            res.status(200).json({ "success": true});
+            const r=await makeTransaction(req.body);
+        }else{
+            res.status(400).json({ "success": false});
+        }
+    }
+     
+  } else {
+     res.status(500).json({ "success": false });
+  }
+ 
+}
+catch (e) {
+  res.status(500).json({ "success": false });
+  console.log(e);
+}
+});
+app.post("/vmctestqr/setQRcode/",auth , async (req, res) => {
+    console.log(req.params);
+    console.log(req.body);
+    if (req.user.role == "superAdmin") {
+        try {   const data = new QrData(req.body);
+                const  qrdata = await data.save();
+               if(qrdata){
+                console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrdata)
+                res.status(200).json({ "status": "Machine Created Successfully","data":qrdata });
+               }else{
+                console.log("🚀 ~ file: server.js:211 ~ app.post ~ qrdata", qrdata)
+                res.status(200).json({ "status": "failed"});
+               }
+            }
+        catch (error) {
+            console.log("🚀 ~ file: server.js:219 ~ app.post ~ error", error)
+            res.status(200).json({ "status": "failed","error":"internal server error "});
+        }
+    }
+    else {
+        res.status(401).json({"status": "failed", "error": "You are not Have permission to add QR DATA" });
+    }
+
+
 
 });
 
-
-//TODO: NEW APIs////////////////////////////////////////////////////////////////////////////////
-
-
+//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
 
 
 
@@ -209,11 +453,11 @@ app.get("/api/RefundRequestReport",async (req, res) => {
          if (!(data.length==0)) {
              for (i = 0; i < data.length; i++) {
                  console.log(data[i].created_date);
-                 dp=data[i].created_date+"";
-                 dp=dp.slice(0, 24);
-                 console.log(dp)
+                //  dp=data[i].created_date+"";
+                //  dp=dp.slice(0, 24);
+                //  console.log(dp)
                  const j = {
-                    "created_date":dp,
+                    "created_date": data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "ename": data[i].ename,
                     "phone": data[i].phone,
                     "machine": data[i].machine,
@@ -298,11 +542,11 @@ app.post("/api/RefundRequestReport",async (req, res) => {
          if (!(data.length==0)) {
              for (i = 0; i < data.length; i++) {
                  console.log(data[i].created_date);
-                 dp=data[i].created_date+"";
-                 dp=dp.slice(0, 24);
-                 console.log(dp)
+                //  dp=data[i].created_date+"";
+                //  dp=dp.slice(0, 24);
+                //  console.log(dp)
                  const j = {
-                     "created_date":dp,
+                     "created_date": data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                      "ename": data[i].ename,
                      "phone": data[i].phone,
                      "machine": data[i].machine,
@@ -1154,7 +1398,7 @@ app.get("/machine/sales/report", auth, async (req, res) => {
                    result.sold_quantity+=1;
                 }else {
                 const j = {
-                    "date_time":pdata.created_date,
+                    "date_time":pdata.created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "company_id": data[i].company_id,
                     "machine_id": data[i].machine_id,
                     "slote_number": pdata.slote_number,
@@ -1197,13 +1441,12 @@ app.get("/csvreport", auth, async (req, res) => {
         }
         return trans;
     }
-
     try {
         const startDate = req.body.start;
         const endDate = req.body.end;
         console.log(`${startDate} to ${endDate}`);
-        const data = await Transaction.find({
-            $and: [{ $or: [{ admin_id: req.user._id }, { super_admin: req.user.id }] },
+        const data = await Pendingstatus.find({
+            $and: [{machine_id:req.body.machine_id},{status:"Completed"},
             {
                 created_date: {
                     $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
@@ -1212,43 +1455,42 @@ app.get("/csvreport", auth, async (req, res) => {
             }
             ]
         })
-
-
         console.log(data.length);
         if (!(data.lenght == 0)) {
             for (i = 0; i < data.length; i++) {
 
-                const pdata = await Product.findOne({ _id: data[i].titem });
+                // const pdata = await Product.findOne({ _id: data[i].titem });
 
-                  var edata = await Employee.findOne({ card_number: data[i].card_no });
+                //   var edata = await Employee.findOne({ card_number: data[i].card_no });
 
-                console.log("employee data="+edata);
-                if(edata==null)
+                // console.log("employee data="+edata);
+                // if(edata==null)
 
-                { 
-                    console.log("employee data not found in employee table");
-                     edata={
-                      "card_number":data[i].card_no,
-                      "employee_name":data[i].teid,
-                       "email": "",
-                      "manager_email": "",
-                      "cost_center": "",
+                // { 
+                //     console.log("employee data not found in employee table");
+                //      edata={
+                //       "card_number":data[i].card_no,
+                //       "employee_name":data[i].teid,
+                //        "email": "",
+                //       "manager_email": "",
+                //       "cost_center": "",
 
-                      }
+                //       }
 
-                }
-                console.log(edata);
+                // }
+                // // let text = d.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'});;
+                // console.log(edata);
                 const j = {
-                    "created_date": data[i].created_date,
-                    "card_number": edata.card_number,
-                    "employee_name": edata.employee_name,
-                    "email": edata.email,
-                    "manager_email": edata.manager_email,
-                    "cost_center": edata.cost_center,
-                    "item_description": pdata.item_description,
-                    "slote_number": pdata.slote_number,
-                    "machine_number": pdata.machine_id,
-                    "item_price": pdata.item_price
+                    "created_date": data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
+                    "card_number": data[i].card_number,
+                    "employee_name": data[i].employee_name,
+                    "email": data[i].email,
+                    "manager_email": data[i].manager_email,
+                    "cost_center": "",
+                    "item_description": data[i].item_description,
+                    "slote_number": data[i].slote_number,
+                    "machine_number": data[i].machine_id,
+                    "item_price": data[i].item_price
                 }
                 //console.log(j);
                 transaction(j);
@@ -1312,7 +1554,7 @@ app.get("/credit/csvreport", auth, async (req, res) => {
         if (!(data.lenght == 0)) {
             for (i = 0; i < data.length; i++) {
                 const j = {
-                    "created_date": data[i].created_date,
+                    "created_date":  data[i].created_date.toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
                     "credit_month":data[i].credit_month,
                     "card_number":  data[i].card_number,
                     "employee_name":  data[i].employee_name,
@@ -1491,7 +1733,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
             const mdata = await Machine.findOne({ machine_id: req.params.machine }, { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 });
             console.log(mdata.admin)
             dv=Date.now();
-            const edata = await Credittable.findOne({ $and: [{ card_number: card }, { admin_id: mdata.admin },{active_status:true},{credit_validity_to:{$gte:dv}},{credit_validity_from:{$lte:dv}}] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 }).sort({ "created_date":-1 });
+            const edata = await Credittable.findOne({ $and: [{ card_number: card }, { admin_id: mdata.admin },{active_status:true}] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 }).sort({ "created_date":-1 });
            //,{credit_validity_to:{$lte:Date.now()}},{credit_validity_from:{$gte:Date.now()}}
             const pdata = await Product.findOne({ $and: [{ slote_number: slote }, { machine_id: req.params.machine }, { company_id: mdata.company_id }] }, { quantity: 0, created_date: 0, __v: 0 });
 
@@ -9279,70 +9521,7 @@ app.get("/napkinvendmachine/:storeId/:terminalId/:merchantId", async (req, res) 
         console.log(e);
     }
 });
-//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
-var vmctestpayment=0;
-var vmcstoreid="snaxsmartstore1";
-var vmcterminalid="444f4r343443f443ff4";
-var vmcmerchantid="QRTV3442";
-var vmctransaction="34545h434uuhgg4";
-app.get("/vmctestqr/checkpayment/:machine/:storeId/:terminalId/:merchantId", async (req, res) => {
-       console.log(req.params);
-       console.log(req.headers);
-       console.log(req.body);
-    try {
-        if (vmctestpayment == 0) {
-            console.log("transaction not found");
-            res.status(400).json({ "success": false });
-        } else {
-            console.log("transaction found");
-                res.status(200).json({ "success": true, "credit_amount":vmctestpayment ,"transactionID":vmctransaction});
-                vmctestpayment=0;
-        }
-    }
-    catch (e) {
-        res.status(500).json({ "success": false });
-        console.log(e);
-    }
-});
-app.get("/vmctestqr/setcredit/:amount", async (req, res) => {
-    console.log(req.params);
-    //console.log(req.headers);
-    console.log(req.body);
- try {
-     if (req.params.amount == 0) {
-         console.log("transaction not found");
-         res.status(400).json({ "success": true, "payment_set":true });
-     } else {
-         console.log("transaction found");
-         vmctestpayment=req.params.amount;
-             res.status(200).json({ "success": true, "payment_set":true});
-     }
- }
- catch (e) {
-     res.status(500).json({ "success": false });
-     console.log(e);
- }
-});
-app.post("/vmctestqr/vendack/", async (req, res) => {
-    console.log(req.params);
-    //console.log(req.headers);
-    console.log(req.body);
- try {
-     if (req.body.transactionID!=vmctransaction) { //in main real api you need to compaire the refund amount and credit amount.
-         console.log("transaction not found");
-         res.status(400).json({ "success": false, "refund":false });
-     } else {
-         console.log("transaction found");
-         vmctestpayment=req.params.amount;
-             res.status(200).json({ "success": true, "refund":true});
-     }
- }
- catch (e) {
-     res.status(500).json({ "success": false });
-     console.log(e);
- }
-});
-//TODO: Pulsar VMC QR tesing Demo API Code/////////////////////////////////////////////////////////////////////////////PULSAR VMC API//////////////////
+
 
 
 
