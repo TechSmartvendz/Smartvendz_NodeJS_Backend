@@ -274,14 +274,14 @@ async function juniperEmail(x) {
     // console.log("" + prodata.tid + "|" + prodata.titem + "|" + prodata.teid + "|" + prodata.tdate + "|" + prodata.ttime + "|" + prodata.tstatus + "|" + prodata.tserial + "|" + prodata.price + "|" + empdata.card_number + "|");
     // declare vars
     let fromMail = process.env.SENDER_EMAIL;
-    let toMail = "" + pendingdata.email + "," + pendingdata.manager_email;
+    let toMail = "" + pendingdata.email + "," + pendingdata.manager_email+",India-Onsite@juniper.net";
     // let toMail = 'gnbaviskar2@gmail.com,gnbaviskar3@gmail.com';
     let subject = 'JUNIPER: Item Purchase Report';
     //<img style="margin-left: 436px;width: 179px;" src="http://13.233.20.108/logo" alt="Snaxsmart-Logo">
     let html =
         `<div>
 
-        <p style=" font-size: 16px;">Dear<span style="font-weight: 600;"> Associate,</span></p>
+        <p style=" font-size: 16px;">Dear<span style="font-weight: 600;"> Junivator,</span></p>
         <br><span></span>
         <span style="font-size: 15px;">Receipt for Vending Machine Transaction</span>
         <br>

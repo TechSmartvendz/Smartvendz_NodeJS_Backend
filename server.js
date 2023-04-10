@@ -2024,11 +2024,11 @@ app.get("/snaxsmart/:machine", async (req, res) => {
             // console.log(req.params.machine);
             // console.log(req.query);
             const mdata = await Machine.findOne({ machine_id: req.params.machine }, { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 });
-            const edata = await Employee.findOne({ $and: [{ card_number: card }, { company_id: mdata.company_id }] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 });
+            const edata = await Employee.findOne({ $and: [{ card_number: card }] }, { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 });
             const pdata = await Product.findOne({ $and: [{ slote_number: slote }, { machine_id: req.params.machine }, { company_id: mdata.company_id }] }, { quantity: 0, created_date: 0, __v: 0 });
 
              console.log(mdata);
-             console.log(edata);
+             console.log("eee",edata);
              console.log(pdata);
             if (edata) {
                 /////////////////////transaction creation code ///////////////////
