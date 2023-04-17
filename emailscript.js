@@ -270,6 +270,14 @@ async function juniperEmail(x) {
     var pendingdata = x;
     console.log(x);
     console.log(pendingdata.email);
+
+    console.log(pendingdata.created_date);
+    pendingdata.created_date
+    var dd=new Date(pendingdata.created_date).toLocaleDateString(undefined, {timeZone: 'Asia/Kolkata'});
+    var tt=new Date(pendingdata.created_date).toLocaleTimeString(undefined, {timeZone: 'Asia/Kolkata'})
+    console.log("🚀 ~ file: emailscript.js:278 ~ tt:", tt)
+    console.log("🚀 ~ file: emailscript.js:277 ~ dd:", dd)
+
     console.log(pendingdata.manager_email);
     // console.log("" + prodata.tid + "|" + prodata.titem + "|" + prodata.teid + "|" + prodata.tdate + "|" + prodata.ttime + "|" + prodata.tstatus + "|" + prodata.tserial + "|" + prodata.price + "|" + empdata.card_number + "|");
     // declare vars
@@ -280,7 +288,6 @@ async function juniperEmail(x) {
     //<img style="margin-left: 436px;width: 179px;" src="http://13.233.20.108/logo" alt="Snaxsmart-Logo">
     let html =
         `<div>
-
         <p style=" font-size: 16px;">Dear<span style="font-weight: 600;"> Junivator,</span></p>
         <br><span></span>
         <span style="font-size: 15px;">Receipt for Vending Machine Transaction</span>
@@ -352,7 +359,7 @@ async function juniperEmail(x) {
                                         <td style="border:solid #c4c4c4 1.0pt;background:#f2f2f2;">
                                             <p class="MsoNormal"><span
                                                     style="font-size:9.0pt;font-family:&quot;Arial&quot;,sans-serif;color:black">
-                                                    ${pendingdata.tdate} ${pendingdata.ttime}<u></u><u></u></span>
+                                                    ${dd} ${tt}<u></u><u></u></span>
                                             </p>
                                         </td>
     
