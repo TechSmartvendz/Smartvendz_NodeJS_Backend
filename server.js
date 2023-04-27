@@ -98,7 +98,7 @@ async function makeTransaction(vendData){
 }  
 
 app.get("/", (req, res) => {
-   res.send("Smartvendz:Backend");
+   res.send("Smartvendz:Backend update");
 });
 
 
