@@ -1734,7 +1734,7 @@ app.get("/rejectedCards", async (req, res) => {
   if (machineId) {
     filter.machine_id = machineId;
   }
-console.log(filter)
+// console.log(filter)
   try {
     const rejectData = await Rejectedcard.find(filter);
     if(rejectData.length<=0){
