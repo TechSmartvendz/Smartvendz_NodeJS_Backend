@@ -1734,11 +1734,11 @@ app.get("/rejectedCards", async (req, res) => {
   if (machineId) {
     filter.machine_id = machineId;
   }
-console.log(filter)
+// console.log(filter)
   try {
     const rejectData = await Rejectedcard.find(filter);
     if(rejectData.length<=0){
-       return res.status(200).json({ "message": "No Transactions" });
+       return res.status(200).json({ "message": "No Transactions found" });
     }
     rejectData.map((card) => {
       const { tdate, ttime, card_no, machine_id, error } = card;
