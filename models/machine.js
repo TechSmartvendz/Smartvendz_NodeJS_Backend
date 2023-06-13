@@ -38,7 +38,15 @@ const machineSchema=new mongoose.Schema({
     },
     slots_name: [{
         slote: String
-    }]
+    }],
+    active: {
+        type:Boolean,
+        default:false
+    },
+    update: {
+        type: String,
+        default: Date.now
+    }
 }) 
 
 
