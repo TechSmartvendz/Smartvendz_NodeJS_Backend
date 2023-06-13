@@ -16881,6 +16881,53 @@ app.get(
   }
 );
 
+//-----------------update credit balance of employees from machine------------------------//
+// cron.schedule('* 12 * * *', async() => {
+// // Update the cost limit of the employee with ID 123
+//     await Credittable.updateMany({machine_id:"SVZBLR0050"}, {$set: { daily_limit: 500, credit_balance: 150 }}, {upsert: true}),
+//     (error, result) => {
+//           if (error) {
+//             console.error(error);
+//           } else {
+//             console.log('Cost limit updated successfully');
+//           }
+//         }
+//         console.log("------------------------------working--------------------------")
+// });
+
+//-------------------------checkMachineConnected--------------------------//
+app.post("/checkMachineConnected", async(req,res) => {
+  // console.log("check");
+  const data = await req.body.machine;
+  let updatedate = Date.now();
+  const options = {
+    timeZone: 'Asia/Kolkata',
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  };
+  
+  const indiaTime = new Date(updatedate).toLocaleString('en-US', options);
+  
+  // console.log('Current time in India:', indiaTime);
+  if(data){
+    const updatedata = await Machine.findOneAndUpdate({machine_id:data}, {active:true});
+    const updatensewdata = await Machine.findOneAndUpdate({machine_id:data}, {update:indiaTime});
+    console.log(updatedata.machine_id);
+  }
+});
+
+app.get("/checkMachineConnected", async(req,res) => {
+  const machineid = req.body.id;
+  const conn = await Machine.find({machine_id:machineid}).select('machine_id install_location comapny_bulding_no product_type total_slots company_id slots_name active update');
+  // console.log(conn);
+  return res.send(conn);
+});
+
 app.listen(port, () => {
   console.log(`connection is setup at ${port}`);
 });
