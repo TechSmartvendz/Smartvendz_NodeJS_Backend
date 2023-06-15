@@ -1623,7 +1623,8 @@ app.get("/machine/sales/report", auth, async (req, res) => {
   }
 });
 
-app.get("/csvreport", auth, async (req, res) => {
+//-------------------changed this api as post previosly it is working as get api --------------------------//
+app.post("/csvreport", auth, async (req, res) => {
   console.log(req.body);
   var trans = [];
   function transaction(x) {
@@ -1649,7 +1650,7 @@ app.get("/csvreport", auth, async (req, res) => {
       ],
     });
     console.log(data.length);
-    if (!(data.lenght == 0)) {
+    if (!(data.length == 0)) {
       for (i = 0; i < data.length; i++) {
         // const pdata = await Product.findOne({ _id: data[i].titem });
 
@@ -1763,7 +1764,8 @@ app.get("/rejectedCards", async (req, res) => {
 
 //TODO: Transaction JSON AND Dowanload CSV Report code  ////////////////////////////////////////////////////////////////////////////////////////////////
 //TODO: Credit Upload, Vend From Credit API And JSON AND Dowanload CSV Report code  ////////////////////////////////////////////////////////////////////
-app.get("/credit/csvreport", auth, async (req, res) => {
+//-------------------changed this api as post previosly it is working as get api --------------------------//
+app.post("/credit/csvreport", auth, async (req, res) => {
   console.log(req.body);
   var trans = [];
   function transaction(x) {
@@ -1796,7 +1798,7 @@ app.get("/credit/csvreport", auth, async (req, res) => {
     });
 
     console.log(data.length);
-    if (!(data.lenght == 0)) {
+    if (!(data.length == 0)) {
       for (i = 0; i < data.length; i++) {
         const j = {
           created_date: data[i].created_date.toLocaleString(undefined, {
