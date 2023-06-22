@@ -1695,11 +1695,11 @@ app.post("/csvreport", auth, async (req, res) => {
         "Created_Date",
         "Card_number",
         "Employee_name",
-        "Email",
+        "Employee_Email",
         "Manager_Email",
         "Cost_center",
         "Item_Description",
-        "Slote_Number",
+        "Slot_Number",
         "Machine_Number",
         "Item_Price",
       ];
@@ -2111,7 +2111,11 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
               .then((p) => {
                 // console.log(p);
                 // console.log(d);
-                // email.add(edata, d, pdata, mdata);
+                //-------------- currently email notification only on for this machine -------------------//
+                if(p.machine_id === "SVZBLR0012"){
+                  email.add(edata, d, pdata, mdata);
+                }
+                // ---------------------------------------------------------------------------------------//
                 edata.credit_balance = edata.credit_balance - pdata.item_price;
                 edata.transaction_count += 1;
                 console.log(edata);
