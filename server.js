@@ -2199,11 +2199,11 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
         console.log("pending data fetched successfully");
         //console.log(pending);
 
-        if (pending.machine_id == "SVZBLR0001") {
-          email.juniperEmail(pending);
-        } else {
+        // if (pending.machine_id == "SVZBLR0001") {
+        //   email.juniperEmail(pending);
+        // } else {
           // email.pendingconfirm(pending);
-        }
+        // }
 
         const transaction = await Transaction.findOneAndUpdate(
           { $and: [{ id: pending.transaction_id }, { status: "InProcess" }] },

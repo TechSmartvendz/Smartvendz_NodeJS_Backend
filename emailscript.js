@@ -33,7 +33,9 @@ async function add(x, y,z,m) {
 
     // declare vars
     let fromMail = process.env.SENDER_EMAIL;
-    let toMail = "" + empdata.email + "," + empdata.manager_email;
+    // let toMail = "" + empdata.email + "," + empdata.manager_email;
+    // ------------just sending mail to employee------------------//
+    let toMail = "" + empdata.email ;
 
     // let toMail = 'gnbaviskar2@gmail.com,gnbaviskar3@gmail.com';
 
@@ -134,7 +136,8 @@ async function add(x, y,z,m) {
       if (error) {
         console.log(error);
       }else{
-      console.log(`\nEmailStatus:{${response.response}} to {${empdata.email},${empdata.manager_email}} for {${prodata._id}}`);
+    //   console.log(`\nEmailStatus:{${response.response}} to {${empdata.email},${empdata.manager_email}} for {${prodata._id}}`);
+      console.log(`\nEmailStatus:{${response.response}} to {${empdata.email}} for {${prodata._id}}`);
       }
     });
 
