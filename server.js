@@ -2080,8 +2080,10 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
       const current_date =  `${day}/${month}/${year}`
       const current_Time = `${hours}:${minutes}:${seconds}`
 
-// console.log(current_data)
-// console.log(current_Time)
+      console.log("-------------------------time & date changes--------------------------------------------------")
+      console.log(current_date)
+      console.log(current_Time)
+      console.log("-------------------------time & date changes--------------------------------------------------")
 
 
       if (edata && edata.credit_balance >= pdata.item_price) {
@@ -2118,7 +2120,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
             pendingstatus.manager_email = edata.manager_email;
             pendingstatus.employee_id = edata.employee_id;
             pendingstatus.item_description = pdata.item_description;
-            pendingstatus.tdate = currentDate;
+            pendingstatus.tdate = current_date;
             pendingstatus.ttime = current_Time;
             pendingstatus.slote_number = slote;
             pendingstatus.item_price = pdata.item_price;
@@ -2164,7 +2166,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
         ////////////////////transaction creation code end /////////////////////////
       } else {
         const rejectedcard = new Rejectedcard();
-        rejectedcard.tdate = currentDate;
+        rejectedcard.tdate = current_date;
         rejectedcard.ttime = current_Time;
         rejectedcard.card_no = req.query.card;
         rejectedcard.admin_id = mdata.admin_id;
@@ -2182,7 +2184,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
       }
     } catch (e) {
       const rejectedcard = new Rejectedcard();
-      rejectedcard.tdate = currentDate;
+      rejectedcard.tdate = current_date;
       rejectedcard.ttime = current_Time;
       rejectedcard.card_no = req.query.card;
       rejectedcard.admin_id = "N/A";
