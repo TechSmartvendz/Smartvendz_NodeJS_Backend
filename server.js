@@ -2036,7 +2036,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
         { machine_id: req.params.machine },
         { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 }
       );
-      console.log(mdata.admin);
+      // console.log(mdata.admin);
       dv = Date.now();
       const edata = await Credittable.findOne(
         {
@@ -2061,16 +2061,36 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
       );
 
       console.log(mdata);
+      console.log("-----------------mdata-----------")
       console.log(edata);
+      console.log("-----------------edata-----------")
       console.log(pdata);
+      console.log("-----------------pdata-----------")
+
+      const currentDate = new Date();
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
+      const day = currentDate.getDate();
+
+      const hours = currentDate.getHours();
+      const minutes = currentDate.getMinutes();
+      const seconds = currentDate.getSeconds();
+
+      const current_date =  `${day}/${month}/${year}`
+      const current_Time = `${hours}:${minutes}:${seconds}`
+
+// console.log(current_data)
+// console.log(current_Time)
+
 
       if (edata && edata.credit_balance >= pdata.item_price) {
         /////////////////////transaction creation code ///////////////////
         const transaction = new Transaction();
         transaction.teid = edata.id;
         transaction.titem = pdata.id;
-        transaction.tdate = req.query.date;
-        transaction.ttime = req.query.time;
+        transaction.tdate = current_date;
+        transaction.ttime = current_Time;
         transaction.tstatus = req.query.status;
         transaction.tserial = req.query.serial;
         transaction.card_no = req.query.card;
@@ -2098,8 +2118,8 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
             pendingstatus.manager_email = edata.manager_email;
             pendingstatus.employee_id = edata.employee_id;
             pendingstatus.item_description = pdata.item_description;
-            pendingstatus.tdate = req.query.date;
-            pendingstatus.ttime = req.query.time;
+            pendingstatus.tdate = currentDate;
+            pendingstatus.ttime = current_Time;
             pendingstatus.slote_number = slote;
             pendingstatus.item_price = pdata.item_price;
             pendingstatus.price = pdata.item_price;
@@ -2112,7 +2132,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
                 // console.log(p);
                 // console.log(d);
                 //-------------- currently email notification only on for this machine -------------------//
-                if(p.machine_id === "SVZBLR0012"){
+                if(p.machine_id === "SVZBLR0012" || p.machine_id === "SVZBLR0050"){
                   email.add(edata, d, pdata, mdata);
                 }
                 // ---------------------------------------------------------------------------------------//
@@ -2144,8 +2164,8 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
         ////////////////////transaction creation code end /////////////////////////
       } else {
         const rejectedcard = new Rejectedcard();
-        rejectedcard.tdate = req.query.date;
-        rejectedcard.ttime = req.query.time;
+        rejectedcard.tdate = currentDate;
+        rejectedcard.ttime = current_Time;
         rejectedcard.card_no = req.query.card;
         rejectedcard.admin_id = mdata.admin_id;
         rejectedcard.super_admin = mdata.super_admin;
@@ -2162,8 +2182,8 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
       }
     } catch (e) {
       const rejectedcard = new Rejectedcard();
-      rejectedcard.tdate = req.query.date;
-      rejectedcard.ttime = req.query.time;
+      rejectedcard.tdate = currentDate;
+      rejectedcard.ttime = current_Time;
       rejectedcard.card_no = req.query.card;
       rejectedcard.admin_id = "N/A";
       rejectedcard.super_admin = "N/A";
