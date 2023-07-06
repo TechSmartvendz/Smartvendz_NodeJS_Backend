@@ -522,4 +522,32 @@ function otpsend(x, y) {
 
 }
 
-module.exports = { add, otpsend, registerNotification, pendingconfirm,juniperEmail};
+const sendDailyCsvReportEMail = (csvData) => {
+    let fromMail = 'vendingreceipt@snaxsmart.com';
+    let toMail = "" + "tech@smartvendz.com";
+    let subject = "Daily CSV Report";
+
+    let mailOptions = {
+        from: fromMail,
+        to: toMail,
+        subject: subject,
+        text: 'Please find the attached CSV file.',
+        attachments: [
+        {
+            filename: "Csv Report",
+            content: csvData
+        }
+    ]
+      };
+
+    transporter.sendMail(mailOptions, (error, response) => {
+        if (error) {
+          console.log(error);
+        }
+    
+        console.log(response);
+        return true;
+    });
+}
+
+module.exports = { add, otpsend, registerNotification, pendingconfirm,juniperEmail, sendDailyCsvReportEMail};
