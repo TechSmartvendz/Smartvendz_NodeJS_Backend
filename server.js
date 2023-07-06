@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
+const cron = require('node-cron');
 //for HBD SUPPORT lib//
 const path = require("path");
 const hbs = require("hbs");
@@ -16956,8 +16957,7 @@ app.get("/checkMachineConnected", async(req,res) => {
   return res.send(conn);
 });
 
-// cron.schedule('0 10 * * *', () => {
-  app.get("/dailyCsvReport", async(req,res)=> {
+cron.schedule('0 9 * * *', () => {
     var trans = [];
     function transaction(x) {
       if (x) {
@@ -16973,7 +16973,7 @@ app.get("/checkMachineConnected", async(req,res) => {
     endDate.setDate(endDate.getDate() - 1);
       // console.log("startDate",startDate);
       // console.log("endDate",endDate);
-      console.log(`${startDate} to ${endDate}`);
+      // console.log(`${startDate} to ${endDate}`);
       const data = await Pendingstatus.find({
         $and: [
           { machine_id: "SVZBLR0012" },
@@ -16986,8 +16986,8 @@ app.get("/checkMachineConnected", async(req,res) => {
           },
         ],
       });
-      console.log(data)
-      console.log(data.length);
+      // console.log(data)
+      // console.log(data.length);
       if (!(data.length == 0)) {
         for (i = 0; i < data.length; i++) {
           const j = {
@@ -17004,9 +17004,9 @@ app.get("/checkMachineConnected", async(req,res) => {
             machine_number: data[i].machine_id,
             item_price: data[i].item_price,
           };
-          console.log(j);
+          // console.log(j);
           transaction(j);
-          console.log(trans);
+          // console.log(trans);
         }
         const csvFields = [
           "Created_Date",
