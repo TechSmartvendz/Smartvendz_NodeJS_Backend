@@ -16957,7 +16957,7 @@ app.get("/checkMachineConnected", async(req,res) => {
 });
 
 // cron.schedule('0 10 * * *', () => {
-app.get("/dailyCsvReport", async (req, res) => {
+  app.get("/dailyCsvReport", async(req,res)=> {
     var trans = [];
     function transaction(x) {
       if (x) {
@@ -17027,8 +17027,8 @@ app.get("/dailyCsvReport", async (req, res) => {
           "Content-Disposition",
           "attachment; filename=Transactions.csv"
         );
-          email.sendDailyCsvReportEMail(csvData);
-        // res.status(200);
+        email.sendDailyCsvReportEMail(csvData);
+        res.status(200).send("email send");
       } else {
         res.status(200).json({ error: "transactions not found" });
       }
@@ -17037,7 +17037,6 @@ app.get("/dailyCsvReport", async (req, res) => {
       console.log(e);
     }
 });
-// });
 
 app.listen(port, () => {
   console.log(`connection is setup at ${port}`);
