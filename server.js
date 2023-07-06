@@ -16956,90 +16956,88 @@ app.get("/checkMachineConnected", async(req,res) => {
   return res.send(conn);
 });
 
+// cron.schedule('0 10 * * *', () => {
 app.get("/dailyCsvReport", async (req, res) => {
-  // console.log(req.body);
-  var trans = [];
-  function transaction(x) {
-    if (x) {
-      trans.push(x);
-    }
-    return trans;
-  }
-  try {
-
-  // Get yesterday's date
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 1);
-  const endDate = new Date();
-  endDate.setDate(endDate.getDate() - 1);
-    console.log("startDate",startDate);
-    console.log("endDate",endDate);
-    // const startDate = req.body.start;
-    // const endDate = req.body.end;
-    console.log(`${startDate} to ${endDate}`);
-    const data = await Pendingstatus.find({
-      $and: [
-        { machine_id: "SVZBLR0012" },
-        { status: "Completed" },
-        {
-          created_date: {
-            $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
-            $lte: new Date(new Date(endDate).setHours(23, 59, 59)),
-          },
-        },
-      ],
-    });
-    console.log(data)
-    console.log(data.length);
-    if (!(data.length == 0)) {
-      for (i = 0; i < data.length; i++) {
-        const j = {
-          created_date: data[i].created_date.toLocaleString(undefined, {
-            timeZone: "Asia/Kolkata",
-          }),
-          card_number: data[i].card_number,
-          employee_name: data[i].employee_name,
-          email: data[i].email,
-          manager_email: data[i].manager_email,
-          cost_center: "",
-          item_description: data[i].item_description,
-          slote_number: data[i].slote_number,
-          machine_number: data[i].machine_id,
-          item_price: data[i].item_price,
-        };
-        console.log(j);
-        transaction(j);
-        console.log(trans);
+    var trans = [];
+    function transaction(x) {
+      if (x) {
+        trans.push(x);
       }
-      const csvFields = [
-        "Created_Date",
-        "Card_number",
-        "Employee_name",
-        "Employee_Email",
-        "Manager_Email",
-        "Cost_center",
-        "Item_Description",
-        "Slot_Number",
-        "Machine_Number",
-        "Item_Price",
-      ];
-      const csvParser = new CsvParser({ csvFields });
-      const csvData = csvParser.parse(trans);
-      res.setHeader("Content-Type", "text/csv");
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=Transactions.csv"
-      );
-        email.sendDailyCsvReportEMail(csvData);
-      res.status(200).end(csvData);
-    } else {
-      res.status(200).json({ error: "transactions not found" });
+      return trans;
     }
-  } catch (e) {
-    res.status(200).json({ error: "server internal error" });
-    console.log(e);
-  }
+    try {
+    // Get yesterday's date
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 1);
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() - 1);
+      // console.log("startDate",startDate);
+      // console.log("endDate",endDate);
+      console.log(`${startDate} to ${endDate}`);
+      const data = await Pendingstatus.find({
+        $and: [
+          { machine_id: "SVZBLR0012" },
+          { status: "Completed" },
+          {
+            created_date: {
+              $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+              $lte: new Date(new Date(endDate).setHours(23, 59, 59)),
+            },
+          },
+        ],
+      });
+      console.log(data)
+      console.log(data.length);
+      if (!(data.length == 0)) {
+        for (i = 0; i < data.length; i++) {
+          const j = {
+            created_date: data[i].created_date.toLocaleString(undefined, {
+              timeZone: "Asia/Kolkata",
+            }),
+            card_number: data[i].card_number,
+            employee_name: data[i].employee_name,
+            email: data[i].email,
+            manager_email: data[i].manager_email,
+            cost_center: "",
+            item_description: data[i].item_description,
+            slote_number: data[i].slote_number,
+            machine_number: data[i].machine_id,
+            item_price: data[i].item_price,
+          };
+          console.log(j);
+          transaction(j);
+          console.log(trans);
+        }
+        const csvFields = [
+          "Created_Date",
+          "Card_number",
+          "Employee_name",
+          "Employee_Email",
+          "Manager_Email",
+          "Cost_center",
+          "Item_Description",
+          "Slot_Number",
+          "Machine_Number",
+          "Item_Price",
+        ];
+        const csvParser = new CsvParser({ csvFields });
+        const csvData = csvParser.parse(trans);
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=Transactions.csv"
+        );
+          email.sendDailyCsvReportEMail(csvData);
+        // res.status(200);
+      } else {
+        res.status(200).json({ error: "transactions not found" });
+      }
+    } catch (e) {
+      res.status(200).json({ error: "server internal error" });
+      console.log(e);
+    }
 });
+// });
 
 app.listen(port, () => {
   console.log(`connection is setup at ${port}`);
