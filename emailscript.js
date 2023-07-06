@@ -534,7 +534,7 @@ const sendDailyCsvReportEMail = (csvData) => {
         text: 'Please find the attached CSV file.',
         attachments: [
         {
-            filename: "Csv Report",
+            filename: "Csv_Report.csv",
             content: csvData
         }
     ]
