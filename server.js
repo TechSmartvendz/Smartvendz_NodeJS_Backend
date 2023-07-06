@@ -16957,7 +16957,7 @@ app.get("/checkMachineConnected", async(req,res) => {
   return res.send(conn);
 });
 
-cron.schedule('0 9 * * *', () => {
+cron.schedule('0 9 * * *', async() => {
     var trans = [];
     function transaction(x) {
       if (x) {
