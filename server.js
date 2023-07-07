@@ -2017,6 +2017,19 @@ app.post(
   }
 );
 app.get("/credit/snaxsmart/:machine", async (req, res) => {
+  let currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
+  const day = currentDate.getDate();
+  const hours = currentDate.getHours();
+  const minutes = currentDate.getMinutes();
+  const seconds = currentDate.getSeconds();
+  let current_date =  `${day}/${month}/${year}`
+  let current_Time = `${hours}:${minutes}:${seconds}`
+  console.log("-------------------------time & date changes--------------------------------------------------");
+  console.log(current_date);
+  console.log(current_Time);
+  console.log("-------------------------time & date changes--------------------------------------------------")
   if (!(req.query.card == undefined)) {
     // console.log(req.query);
     // console.log(req.params);
@@ -2068,24 +2081,6 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
       console.log(pdata);
       console.log("-----------------pdata-----------")
 
-      const currentDate = new Date();
-
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
-      const day = currentDate.getDate();
-
-      const hours = currentDate.getHours();
-      const minutes = currentDate.getMinutes();
-      const seconds = currentDate.getSeconds();
-
-      const current_date =  `${day}/${month}/${year}`
-      const current_Time = `${hours}:${minutes}:${seconds}`
-
-      console.log("-------------------------time & date changes--------------------------------------------------")
-      console.log(current_date)
-      console.log(current_Time)
-      console.log("-------------------------time & date changes--------------------------------------------------")
-
 
       if (edata && edata.credit_balance >= pdata.item_price) {
         /////////////////////transaction creation code ///////////////////
@@ -2135,7 +2130,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
                 // console.log(p);
                 // console.log(d);
                 //-------------- currently email notification only on for this machine -------------------//
-                if(p.machine_id === "SVZBLR0012" || p.machine_id === "SVZBLR0050"){
+                if(p.machine_id === "SVZBLR0012"){
                   email.add(edata, d, pdata, mdata);
                 }
                 // ---------------------------------------------------------------------------------------//
@@ -16957,7 +16952,8 @@ app.get("/checkMachineConnected", async(req,res) => {
   return res.send(conn);
 });
 
-cron.schedule("0 10 * * *", async()=> {
+cron.schedule("15 11 * * *", async ()=> {
+  async function DailyCsvReport(req,res) {
     var trans = [];
     function transaction(x) {
       if (x) {
@@ -17022,12 +17018,12 @@ cron.schedule("0 10 * * *", async()=> {
         ];
         const csvParser = new CsvParser({ csvFields });
         const csvData = csvParser.parse(trans);
+        await email.sendDailyCsvReportEMail(csvData);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader(
           "Content-Disposition",
           "attachment; filename=Transactions.csv"
         );
-        email.sendDailyCsvReportEMail(csvData);
         res.status(200).send("email send");
       } else {
         res.status(200).json({ error: "transactions not found" });
@@ -17036,6 +17032,8 @@ cron.schedule("0 10 * * *", async()=> {
       res.status(200).json({ error: "server internal error" });
       console.log(e);
     }
+}
+  await DailyCsvReport()
 });
 
 app.listen(port, () => {
