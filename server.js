@@ -16952,7 +16952,7 @@ app.get("/checkMachineConnected", async(req,res) => {
   return res.send(conn);
 });
 
-cron.schedule("15 11 * * *", async ()=> {
+cron.schedule("0 12 * * *", async ()=> {
   async function DailyCsvReport(req,res) {
     var trans = [];
     function transaction(x) {
