@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
-const cron = require('node-cron');
+const cron = require("node-cron");
 //for HBD SUPPORT lib//
 const path = require("path");
 const hbs = require("hbs");
@@ -16957,7 +16957,7 @@ app.get("/checkMachineConnected", async(req,res) => {
   return res.send(conn);
 });
 
-cron.schedule('0 9 * * *', async() => {
+cron.schedule("0 10 * * *", async()=> {
     var trans = [];
     function transaction(x) {
       if (x) {
