@@ -522,7 +522,7 @@ function otpsend(x, y) {
 
 }
 
-const sendDailyCsvReportEMail = (csvData) => {
+const sendDailyCsvReportEMail = (csvData,date) => {
     let fromMail = 'vendingreceipt@snaxsmart.com';
     let toMail = 'tech@smartvendz.com, pdanny@juniper.net';
     let subject = "Daily CSV Report";
@@ -531,10 +531,10 @@ const sendDailyCsvReportEMail = (csvData) => {
         from: fromMail,
         to: toMail,
         subject: subject,
-        text: 'Please find the attached CSV file.',
+        text: `Please find the attached CSV file of date: ${date}.`,
         attachments: [
         {
-            filename: "Csv_Report.csv",
+            filename: `Csv_Report_${date}.csv`,
             content: csvData
         }
     ]

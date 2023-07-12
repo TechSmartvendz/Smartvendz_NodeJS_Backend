@@ -17018,7 +17018,7 @@ cron.schedule("0 12 * * *", async ()=> {
         ];
         const csvParser = new CsvParser({ csvFields });
         const csvData = csvParser.parse(trans);
-        await email.sendDailyCsvReportEMail(csvData);
+        await email.sendDailyCsvReportEMail(csvData, endDate);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader(
           "Content-Disposition",
