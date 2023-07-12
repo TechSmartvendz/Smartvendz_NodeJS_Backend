@@ -524,7 +524,7 @@ function otpsend(x, y) {
 
 const sendDailyCsvReportEMail = (csvData) => {
     let fromMail = 'vendingreceipt@snaxsmart.com';
-    let toMail = 'shankar@snaxsmart.com ,tech@smartvendz.com';
+    let toMail = 'tech@smartvendz.com, pdanny@juniper.net';
     let subject = "Daily CSV Report";
 
     let mailOptions = {
