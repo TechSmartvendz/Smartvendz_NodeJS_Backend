@@ -16905,19 +16905,52 @@ app.get(
   }
 );
 
+app.get("/allEmployees",async (req,res)=> {
+  const {machineId } = req.query;
+  const DataArray = [];
+  const filter = {};
+  if (machineId) {
+    filter.machine_id = machineId;
+  }
+  try {
+    const employeeData = await Employee.find(filter);
+    if(employeeData.length<=0){
+       return res.status(200).json({ "message": "No employee found" });
+    }
+    employeeData.map((employee) => {
+      const {iempid,card_number,employee_id,employee_name,email,manager_email,cost_center,department,cost_center_owner_name,company_id,machine_id } = employee;
+      DataArray.push({ Employee_Id:iempid,Card_Number:card_number,Employee_Id:employee_id,Employee_Name:employee_name,Employee_Email:email,Manger_Email:manager_email,Cost_center:cost_center,Department:department,Cost_Center_Owner_Name:cost_center_owner_name,Comapany_Id:company_id,Machine_Id:machine_id });
+    });
+    
+    const csvFields = ["Employee_Id", "Card_Number", "Employee_Id", "Employee_Name", "Employee_Email", "Manger_Email", "Cost_center", "Department", "Cost_Center_Owner_Name", "Comapany_Id", "Machine_Id"];
+    const csvParser = new CsvParser({ csvFields });
+    const csvData = csvParser.parse(DataArray);
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=RejectedCards.csv"
+    );
+
+    res.status(200).end(csvData);
+  } catch (e) {
+    res.status(200).json({ error: "server internal error" });
+    console.log(e);
+  }
+});
+
 //-----------------update credit balance of employees from machine------------------------//
-// cron.schedule('* 12 * * *', async() => {
-// // Update the cost limit of the employee with ID 123
-//     await Credittable.updateMany({machine_id:"SVZBLR0050"}, {$set: { daily_limit: 500, credit_balance: 150 }}, {upsert: true}),
-//     (error, result) => {
-//           if (error) {
-//             console.error(error);
-//           } else {
-//             console.log('Cost limit updated successfully');
-//           }
-//         }
-//         console.log("------------------------------working--------------------------")
-// });
+// Update the cost limit of the employee with ID 123
+cron.schedule('0 0 * * *', async() => {
+    await Credittable.updateMany({machine_id:"SVZBLR0012"}, {$set: { credit_balance: 150 }}, {upsert: true}),
+    (error, result) => {
+          if (error) {
+            console.error(error);
+          } else {
+            console.log('Cost limit updated successfully');
+          }
+        }
+        // console.log("------------------------------working--------------------------")
+});
 
 //-------------------------checkMachineConnected--------------------------//
 app.post("/checkMachineConnected", async(req,res) => {
