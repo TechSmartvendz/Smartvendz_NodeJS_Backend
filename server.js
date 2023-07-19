@@ -16928,7 +16928,41 @@ app.get("/allEmployees",async (req,res)=> {
     res.setHeader("Content-Type", "text/csv");
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=RejectedCards.csv"
+      "attachment; filename=EmployeeDetails.csv"
+    );
+
+    res.status(200).end(csvData);
+  } catch (e) {
+    res.status(200).json({ error: "server internal error" });
+    console.log(e);
+  }
+});
+
+app.get("/creditallEmployees",async (req,res)=> {
+  const {machineId } = req.query;
+  const DataArray = [];
+  const filter = {};
+  if (machineId) {
+    filter.machine_id = machineId;
+  }
+  try {
+    const employeeData = await Credittable.find(filter);
+    if(employeeData.length<=0){
+      return res.status(200).json({ "message": "No employee found" });
+    }
+    // console.log(employeeData)
+    employeeData.map((employee) => {
+      const {empid,card_number,employee_id,employee_name,email,manager_email,cost_center,department,cost_center_owner_name,company_id,machine_id } = employee;
+      DataArray.push({ Employee_Id:empid,Card_Number:card_number,Employee_Id:employee_id,Employee_Name:employee_name,Employee_Email:email,Manger_Email:manager_email,Cost_center:cost_center,Department:department,Cost_Center_Owner_Name:cost_center_owner_name,Comapany_Id:company_id,Machine_Id:machine_id   });
+    });
+    
+    const csvFields = ["Employee_Id", "Card_Number", "Employee_Id", "Employee_Name", "Employee_Email", "Manger_Email", "Cost_center", "Department", "Cost_Center_Owner_Name", "Comapany_Id", "Machine_Id", "Credit_Balance"];
+    const csvParser = new CsvParser({ csvFields });
+    const csvData = csvParser.parse(DataArray);
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=CreditAllEmployeeDetails.csv"
     );
 
     res.status(200).end(csvData);
