@@ -136,7 +136,7 @@ function currentMonth() {
 }
 function creditID() {
     var d = new Date();
-    var st=""+this.card_number+this.credit_month;
+    var st=""+this.card_number+this.credit_month + this.machine_id;
     
     return st;
 }

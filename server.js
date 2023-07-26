@@ -38,6 +38,8 @@ const Napkinjobtable = require("./models/napkinjobtable"); //FIXME:Check and Rem
 const Refund = require("./models/refund");
 const Refundrequest = require("./models/refundrequest");
 const Credittable = require("./models/credittable");
+const ElnathCreditTable = require("./models/elnathcredittable");
+const TridibCredittable = require("./models/tridibcredittable");
 const QrData = require("./models/qrdata");
 const QrCredit = require("./models/qrcredit");
 const QrTransaction = require("./models/qrtransactions");
@@ -1116,7 +1118,7 @@ app.post(
                 const employee = new Employee(results[i]);
                 employee.admin_id = req.user.id; ////here you u can edit when you creating employee upload byr local admin
                 employee.iempid =
-                  "2" + req.user.company_id + results[i].employee_id; //change p13 "22/09"
+                  "2" + req.user.company_id + results[i].employee_id + req.params.machine; //change p13 "22/09"
                 employee.admin_id = req.user.id;
                 employee.super_admin = req.user.superadmin;
                 employee.company_id = req.user.company_id;
@@ -1562,7 +1564,7 @@ app.get("/machine/sales/report", auth, async (req, res) => {
       ],
     });
     console.log(data.length);
-    if (!(data.lenght == 0)) {
+    if (!(data.length == 0)) {
       for (i = 0; i < data.length; i++) {
         const pdata = await Pendingstatus.findOne({
           $and: [{ transaction_id: data[i].id }, { status: "Completed" }],
@@ -1730,17 +1732,20 @@ app.get("/rejectedCards", async (req, res) => {
   const filter = {};
 
   if (startDate && endDate) {
-    filter.created_date = { $gte: new Date(new Date(startDate).toISOString()), $lte: new Date(new Date(endDate).toISOString()) };
+    filter.created_date = {
+      $gte: new Date(new Date(startDate).toISOString()),
+      $lte: new Date(new Date(endDate).toISOString()),
+    };
   }
 
   if (machineId) {
     filter.machine_id = machineId;
   }
-// console.log(filter)
+  // console.log(filter)
   try {
     const rejectData = await Rejectedcard.find(filter);
-    if(rejectData.length<=0){
-       return res.status(200).json({ "message": "No Transactions found" });
+    if (rejectData.length <= 0) {
+      return res.status(200).json({ message: "No Transactions found" });
     }
     rejectData.map((card) => {
       const { tdate, ttime, card_no, machine_id, error } = card;
@@ -1942,10 +1947,12 @@ app.post(
                 console.log(machinedata.admin);
                 console.log(results[i].card_number);
                 try {
-                  const employee = await Employee.findOne({
-                    admin_id: req.user.id,
-                    card_number: results[i].card_number,
-                  });
+                  const employee = await Employee.findOne({$and: [
+                    {admin_id: req.user.id},
+                    {card_number: results[i].card_number},
+                    {machine_id: machinedata.machine_id}
+                  ]});
+                  console.log("employee",employee)
                   console.log(
                     employee.id +
                       " " +
@@ -1961,16 +1968,18 @@ app.post(
                   const credittable = new Credittable(results[i]);
                   credittable.admin_id = req.user.id; ////here you u can edit when you creating employee upload byr local admin
                   //credittable.iempid = "2" + req.user.company_id + results[i].employee_id; //change p13 "22/09"
-                  credittable.admin_id = req.user.id;
+                  // credittable.admin_id = req.user.id;
                   credittable.super_admin = req.user.superadmin;
-                  credittable.company_id = req.user.company_id;
-                  credittable.machine_id = req.params.machine;
-                  credittable.empid = employee.id;
+                  credittable.company_id = employee.company_id;
+                  credittable.machine_id = employee.machine_id;
+                  credittable.empid = employee._id;
                   credittable.active_status = true;
+                  console.log("credittable",credittable)
                   const enterdata = await credittable.save();
-                  console.log(enterdata);
+                  console.log("enterdata",enterdata);
                   const r = succ(results[i]);
                 } catch (e) {
+                  console.log(e)
                   if (e.code == 11000) {
                     const r = reject(results[i]);
                   }
@@ -2001,6 +2010,7 @@ app.post(
         });
       }
     } catch (e) {
+      console.log(e)
       if (!e.length == 0) {
         //console.log("if");
         res.status(200).json({ dataupload: "failed", error: e });
@@ -2024,12 +2034,16 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
   const hours = currentDate.getHours();
   const minutes = currentDate.getMinutes();
   const seconds = currentDate.getSeconds();
-  let current_date =  `${day}/${month}/${year}`
-  let current_Time = `${hours}:${minutes}:${seconds}`
-  console.log("-------------------------time & date changes--------------------------------------------------");
+  let current_date = `${day}/${month}/${year}`;
+  let current_Time = `${hours}:${minutes}:${seconds}`;
+  console.log(
+    "-------------------------time & date changes--------------------------------------------------"
+  );
   console.log(current_date);
   console.log(current_Time);
-  console.log("-------------------------time & date changes--------------------------------------------------")
+  console.log(
+    "-------------------------time & date changes--------------------------------------------------"
+  );
   if (!(req.query.card == undefined)) {
     // console.log(req.query);
     // console.log(req.params);
@@ -2056,6 +2070,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
         {
           $and: [
             { card_number: card },
+            { machine_id: req.params.machine},
             { admin_id: mdata.admin },
             { active_status: true },
           ],
@@ -2075,12 +2090,11 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
       );
 
       console.log(mdata);
-      console.log("-----------------mdata-----------")
+      console.log("-----------------mdata-----------");
       console.log(edata);
-      console.log("-----------------edata-----------")
+      console.log("-----------------edata-----------");
       console.log(pdata);
-      console.log("-----------------pdata-----------")
-
+      console.log("-----------------pdata-----------");
 
       if (edata && edata.credit_balance >= pdata.item_price) {
         /////////////////////transaction creation code ///////////////////
@@ -2130,7 +2144,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
                 // console.log(p);
                 // console.log(d);
                 //-------------- currently email notification only on for this machine -------------------//
-                if(p.machine_id === "SVZBLR0012"){
+                if (p.machine_id === "SVZBLR0012") {
                   email.add(edata, d, pdata, mdata);
                 }
                 // ---------------------------------------------------------------------------------------//
@@ -2220,7 +2234,7 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
         // if (pending.machine_id == "SVZBLR0001") {
         //   email.juniperEmail(pending);
         // } else {
-          // email.pendingconfirm(pending);
+        // email.pendingconfirm(pending);
         // }
 
         const transaction = await Transaction.findOneAndUpdate(
@@ -2267,6 +2281,531 @@ app.get("/credit/snaxsmart/:machine", async (req, res) => {
     }
   }
 });
+
+// Elnath credittable api vending api
+// -------------------------------------------------------------------------//
+// -------------------------------------------------------------------------//
+// app.get("/elnathcredit/snaxsmart/:machine", async (req, res) => {
+//   let currentDate = new Date();
+//   const year = currentDate.getFullYear();
+//   const month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
+//   const day = currentDate.getDate();
+//   const hours = currentDate.getHours();
+//   const minutes = currentDate.getMinutes();
+//   const seconds = currentDate.getSeconds();
+//   let current_date = `${day}/${month}/${year}`;
+//   let current_Time = `${hours}:${minutes}:${seconds}`;
+//   console.log(
+//     "-------------------------time & date changes--------------------------------------------------"
+//   );
+//   console.log(current_date);
+//   console.log(current_Time);
+//   console.log(
+//     "-------------------------time & date changes--------------------------------------------------"
+//   );
+//   if (!(req.query.card == undefined)) {
+//     // console.log(req.query);
+//     // console.log(req.params);
+//     console.log(
+//       "------------------------------------------------credit valid request-----------------------------------------------"
+//     );
+//     try {
+//       const card = req.query.card;
+//       const slote = req.query.item;
+//       // const ma= req.params.machine;
+//       console.log(
+//         `Request No.1 comes for:~ machine=${req.params.machine} card=${req.query.card}| item=${req.query.item}| date=${req.query.date}| time= ${req.query.time}| serial=${req.query.serial}| status= ${req.query.status}| price=${req.query.price}| ~~~~~~~~~~~~`
+//       );
+//       /// query data /////
+//       console.log(req.params.machine);
+//       console.log(req.query);
+//       const mdata = await Machine.findOne(
+//         { machine_id: req.params.machine },
+//         { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 }
+//       );
+//       // console.log(mdata.admin);
+//       dv = Date.now();
+//       const edata = await ElnathCreditTable.findOne(
+//         {
+//           $and: [
+//             { card_number: card },
+//             { machine_id: mdata.machine_id },
+//             { admin_id: mdata.admin },
+//             { active_status: true },
+//           ],
+//         },
+//         { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 }
+//       ).sort({ created_date: -1 });
+//       //,{credit_validity_to:{$lte:Date.now()}},{credit_validity_from:{$gte:Date.now()}}
+//       const pdata = await Product.findOne(
+//         {
+//           $and: [
+//             { slote_number: slote },
+//             { machine_id: req.params.machine },
+//             { company_id: mdata.company_id },
+//           ],
+//         },
+//         { quantity: 0, created_date: 0, __v: 0 }
+//       );
+
+//       console.log(mdata);
+//       console.log("-----------------mdata-----------");
+//       console.log(edata);
+//       console.log("-----------------edata-----------");
+//       console.log(pdata);
+//       console.log("-----------------pdata-----------");
+
+//       if (edata && edata.credit_balance >= pdata.item_price) {
+//         /////////////////////transaction creation code ///////////////////
+//         const transaction = new Transaction();
+//         transaction.teid = edata.id;
+//         transaction.titem = pdata.id;
+//         transaction.tdate = current_date;
+//         transaction.ttime = current_Time;
+//         transaction.tstatus = req.query.status;
+//         transaction.tserial = req.query.serial;
+//         transaction.card_no = req.query.card;
+//         transaction.admin_id = edata.admin_id;
+//         transaction.super_admin = edata.super_admin;
+//         transaction.local_admin = edata.local_admin;
+//         transaction.machine_id = mdata.machine_id;
+//         transaction.price = pdata.item_price;
+//         transaction.credit_wallet = edata.id;
+//         transaction.credit_balance = edata.credit_balance - pdata.item_price;
+
+//         transaction.machine_id = req.params.machine;
+
+//         //console.log(transaction);
+//         transaction
+//           .save()
+//           .then((d) => {
+//             const pendingstatus = new Pendingstatus();
+//             pendingstatus.machine_id = req.params.machine;
+//             pendingstatus.transaction_id = d.id;
+//             pendingstatus.card_number = req.query.card;
+//             pendingstatus.email = edata.email;
+//             pendingstatus.employee_name = edata.employee_name;
+//             pendingstatus.install_location = mdata.install_location;
+//             pendingstatus.manager_email = edata.manager_email;
+//             pendingstatus.employee_id = edata.employee_id;
+//             pendingstatus.item_description = pdata.item_description;
+//             pendingstatus.tdate = current_date;
+//             pendingstatus.ttime = current_Time;
+//             pendingstatus.slote_number = slote;
+//             pendingstatus.item_price = pdata.item_price;
+//             pendingstatus.price = pdata.item_price;
+//             pendingstatus.credit_wallet = edata.id;
+//             pendingstatus.credit_balance =
+//               edata.credit_balance - pdata.item_price;
+//             pendingstatus
+//               .save()
+//               .then((p) => {
+//                 // console.log(p);
+//                 // console.log(d);
+//                 //-------------- currently email notification only on for this machine -------------------//
+//                 // if(p.machine_id === "SVZBLR0012"){
+//                 //   email.add(edata, d, pdata, mdata);
+//                 // }
+//                 // ---------------------------------------------------------------------------------------//
+//                 edata.credit_balance = edata.credit_balance - pdata.item_price;
+//                 edata.transaction_count += 1;
+//                 console.log(edata);
+//                 edata
+//                   .save()
+//                   .then((d) => {
+//                     res.status(200).send("success");
+//                   })
+//                   .catch((e) => {
+//                     res.status(200).send("fail");
+//                     console.log("Error in updating credit_balance");
+//                     console.log(e);
+//                   });
+//               })
+//               .catch((e) => {
+//                 res.status(200).send("fail");
+//                 console.log("Error in saving pendingstatus");
+//                 console.log(e);
+//               });
+//           })
+//           .catch((e) => {
+//             res.status(200).send("fail");
+//             console.log("Error in saving Transaction");
+//             console.log(e);
+//           });
+//         ////////////////////transaction creation code end /////////////////////////
+//       } else {
+//         const rejectedcard = new Rejectedcard();
+//         rejectedcard.tdate = current_date;
+//         rejectedcard.ttime = current_Time;
+//         rejectedcard.card_no = req.query.card;
+//         rejectedcard.admin_id = mdata.admin_id;
+//         rejectedcard.super_admin = mdata.super_admin;
+//         rejectedcard.local_admin = mdata.local_admin;
+//         rejectedcard.machine_id = req.params.machine;
+//         rejectedcard.error = "Invalid Card";
+
+//         //console.log(transaction);
+//         rejectedcard.save().then((d) => {
+//           console.log(d);
+//           console.log("Invalid Card No.");
+//           res.status(200).send("fail");
+//         });
+//       }
+//     } catch (e) {
+//       const rejectedcard = new Rejectedcard();
+//       rejectedcard.tdate = current_date;
+//       rejectedcard.ttime = current_Time;
+//       rejectedcard.card_no = req.query.card;
+//       rejectedcard.admin_id = "N/A";
+//       rejectedcard.super_admin = "N/A";
+//       rejectedcard.local_admin = "N/A";
+//       rejectedcard.machine_id = req.params.machine;
+//       rejectedcard.error = e;
+//       //console.log(transaction);
+//       rejectedcard.save().then((d) => {
+//         console.log(d);
+//         console.log("Server Internal problem");
+//         console.log(e);
+//         res.status(200).send("fail");
+//       });
+//     }
+//   } else {
+//     console.log(
+//       "-------------------------------------ACK request----------------------------------"
+//     );
+//     console.log(`Request no.2 is ACK =${req.url}`);
+//     var strg = String(req.url);
+//     strg = strg.search("VEND,SUCCESS");
+//     if (!(strg == "-1")) {
+//       //console.log(true);
+//       //console.log(strg);
+
+//       try {
+//         const pending = await Pendingstatus.findOne({
+//           $and: [{ machine_id: req.params.machine }, { status: "InProcess" }],
+//         })
+//           .sort({ created_date: -1 })
+//           .limit(1);
+
+//         console.log("pending data fetched successfully");
+//         //console.log(pending);
+
+//         // if (pending.machine_id == "SVZBLR0001") {
+//         //   email.juniperEmail(pending);
+//         // } else {
+//         // email.pendingconfirm(pending);
+//         // }
+
+//         const transaction = await Transaction.findOneAndUpdate(
+//           { $and: [{ id: pending.transaction_id }, { status: "InProcess" }] },
+//           { $set: { status: "Completed" } }
+//         ).sort({ created_date: -1 });
+//         console.log("transaction modified data fetched successfully");
+//         //console.log(transaction);
+//         pending.status = "Completed";
+//         pending.error = req.url.slice(21);
+
+//         pending
+//           .save()
+//           .then((p) => {
+//             console.log("pending status modified data fetched successfully");
+//             //console.log(p);
+//             res.status(200).send("success");
+//           })
+//           .catch((e) => {
+//             res.status(200).send("success");
+//             console.log("Error in saving pendingstatus");
+//             console.log(e);
+//           });
+//         //const pending = await Pendingstatus.findOne({machine_id: req.params.machine});
+//       } catch (e) {
+//         console.log("error in find pending data :" + e);
+//       }
+//     } else {
+//       console.log(false);
+//       console.log(strg);
+//       try {
+//         const pending = await Pendingstatus.findOneAndUpdate(
+//           {
+//             $and: [{ machine_id: req.params.machine }, { status: "InProcess" }],
+//           },
+//           { $set: { status: "Failed", error: req.url.slice(21) } }
+//         ).sort({ created_date: -1 });
+//         res.status(200).send("success");
+//       } catch (e) {
+//         console.log(e);
+//         console.log(pending);
+//         res.status(200).send("success");
+//       }
+//     }
+//   }
+// });
+
+// ---------------------------------------------------------------------------//
+// ---------------------------------------------------------------------------//
+
+// Tridib credittable api vending api
+// ---------------------------------------------------------------------------//
+// ---------------------------------------------------------------------------//
+
+// app.get("/tridibcredit/snaxsmart/:machine", async (req, res) => {
+//   let currentDate = new Date();
+//   const year = currentDate.getFullYear();
+//   const month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
+//   const day = currentDate.getDate();
+//   const hours = currentDate.getHours();
+//   const minutes = currentDate.getMinutes();
+//   const seconds = currentDate.getSeconds();
+//   let current_date = `${day}/${month}/${year}`;
+//   let current_Time = `${hours}:${minutes}:${seconds}`;
+//   console.log(
+//     "-------------------------time & date changes--------------------------------------------------"
+//   );
+//   console.log(current_date);
+//   console.log(current_Time);
+//   console.log(
+//     "-------------------------time & date changes--------------------------------------------------"
+//   );
+//   if (!(req.query.card == undefined)) {
+//     // console.log(req.query);
+//     // console.log(req.params);
+//     console.log(
+//       "------------------------------------------------credit valid request-----------------------------------------------"
+//     );
+//     try {
+//       const card = req.query.card;
+//       const slote = req.query.item;
+//       // const ma= req.params.machine;
+//       console.log(
+//         `Request No.1 comes for:~ machine=${req.params.machine} card=${req.query.card}| item=${req.query.item}| date=${req.query.date}| time= ${req.query.time}| serial=${req.query.serial}| status= ${req.query.status}| price=${req.query.price}| ~~~~~~~~~~~~`
+//       );
+//       /// query data /////
+//       console.log(req.params.machine);
+//       console.log(req.query);
+//       const mdata = await Machine.findOne(
+//         { machine_id: req.params.machine },
+//         { total_slots: 0, slots_name: 0, created_date: 0, __v: 0 }
+//       );
+//       // console.log(mdata.admin);
+//       dv = Date.now();
+//       const edata = await TridibCreditTable.findOne(
+//         {
+//           $and: [
+//             { card_number: card },
+//             { admin_id: mdata.admin },
+//             { active_status: true },
+//           ],
+//         },
+//         { cost_center_owner_name: 0, machine_id: 0, __v: 0, created_date: 0 }
+//       ).sort({ created_date: -1 });
+//       //,{credit_validity_to:{$lte:Date.now()}},{credit_validity_from:{$gte:Date.now()}}
+//       const pdata = await Product.findOne(
+//         {
+//           $and: [
+//             { slote_number: slote },
+//             { machine_id: req.params.machine },
+//             { company_id: mdata.company_id },
+//           ],
+//         },
+//         { quantity: 0, created_date: 0, __v: 0 }
+//       );
+
+//       console.log(mdata);
+//       console.log("-----------------mdata-----------");
+//       console.log(edata);
+//       console.log("-----------------edata-----------");
+//       console.log(pdata);
+//       console.log("-----------------pdata-----------");
+
+//       if (edata && edata.credit_balance >= pdata.item_price) {
+//         /////////////////////transaction creation code ///////////////////
+//         const transaction = new Transaction();
+//         transaction.teid = edata.id;
+//         transaction.titem = pdata.id;
+//         transaction.tdate = current_date;
+//         transaction.ttime = current_Time;
+//         transaction.tstatus = req.query.status;
+//         transaction.tserial = req.query.serial;
+//         transaction.card_no = req.query.card;
+//         transaction.admin_id = edata.admin_id;
+//         transaction.super_admin = edata.super_admin;
+//         transaction.local_admin = edata.local_admin;
+//         transaction.machine_id = mdata.machine_id;
+//         transaction.price = pdata.item_price;
+//         transaction.credit_wallet = edata.id;
+//         transaction.credit_balance = edata.credit_balance - pdata.item_price;
+
+//         transaction.machine_id = req.params.machine;
+
+//         //console.log(transaction);
+//         transaction
+//           .save()
+//           .then((d) => {
+//             const pendingstatus = new Pendingstatus();
+//             pendingstatus.machine_id = req.params.machine;
+//             pendingstatus.transaction_id = d.id;
+//             pendingstatus.card_number = req.query.card;
+//             pendingstatus.email = edata.email;
+//             pendingstatus.employee_name = edata.employee_name;
+//             pendingstatus.install_location = mdata.install_location;
+//             pendingstatus.manager_email = edata.manager_email;
+//             pendingstatus.employee_id = edata.employee_id;
+//             pendingstatus.item_description = pdata.item_description;
+//             pendingstatus.tdate = current_date;
+//             pendingstatus.ttime = current_Time;
+//             pendingstatus.slote_number = slote;
+//             pendingstatus.item_price = pdata.item_price;
+//             pendingstatus.price = pdata.item_price;
+//             pendingstatus.credit_wallet = edata.id;
+//             pendingstatus.credit_balance =
+//               edata.credit_balance - pdata.item_price;
+//             pendingstatus
+//               .save()
+//               .then((p) => {
+//                 // console.log(p);
+//                 // console.log(d);
+//                 //-------------- currently email notification only on for this machine -------------------//
+//                 // if(p.machine_id === "SVZBLR0012"){
+//                 //   email.add(edata, d, pdata, mdata);
+//                 // }
+//                 // ---------------------------------------------------------------------------------------//
+//                 edata.credit_balance = edata.credit_balance - pdata.item_price;
+//                 edata.transaction_count += 1;
+//                 console.log(edata);
+//                 edata
+//                   .save()
+//                   .then((d) => {
+//                     res.status(200).send("success");
+//                   })
+//                   .catch((e) => {
+//                     res.status(200).send("fail");
+//                     console.log("Error in updating credit_balance");
+//                     console.log(e);
+//                   });
+//               })
+//               .catch((e) => {
+//                 res.status(200).send("fail");
+//                 console.log("Error in saving pendingstatus");
+//                 console.log(e);
+//               });
+//           })
+//           .catch((e) => {
+//             res.status(200).send("fail");
+//             console.log("Error in saving Transaction");
+//             console.log(e);
+//           });
+//         ////////////////////transaction creation code end /////////////////////////
+//       } else {
+//         const rejectedcard = new Rejectedcard();
+//         rejectedcard.tdate = current_date;
+//         rejectedcard.ttime = current_Time;
+//         rejectedcard.card_no = req.query.card;
+//         rejectedcard.admin_id = mdata.admin_id;
+//         rejectedcard.super_admin = mdata.super_admin;
+//         rejectedcard.local_admin = mdata.local_admin;
+//         rejectedcard.machine_id = req.params.machine;
+//         rejectedcard.error = "Invalid Card";
+
+//         //console.log(transaction);
+//         rejectedcard.save().then((d) => {
+//           console.log(d);
+//           console.log("Invalid Card No.");
+//           res.status(200).send("fail");
+//         });
+//       }
+//     } catch (e) {
+//       const rejectedcard = new Rejectedcard();
+//       rejectedcard.tdate = current_date;
+//       rejectedcard.ttime = current_Time;
+//       rejectedcard.card_no = req.query.card;
+//       rejectedcard.admin_id = "N/A";
+//       rejectedcard.super_admin = "N/A";
+//       rejectedcard.local_admin = "N/A";
+//       rejectedcard.machine_id = req.params.machine;
+//       rejectedcard.error = e;
+//       //console.log(transaction);
+//       rejectedcard.save().then((d) => {
+//         console.log(d);
+//         console.log("Server Internal problem");
+//         console.log(e);
+//         res.status(200).send("fail");
+//       });
+//     }
+//   } else {
+//     console.log(
+//       "-------------------------------------ACK request----------------------------------"
+//     );
+//     console.log(`Request no.2 is ACK =${req.url}`);
+//     var strg = String(req.url);
+//     strg = strg.search("VEND,SUCCESS");
+//     if (!(strg == "-1")) {
+//       //console.log(true);
+//       //console.log(strg);
+
+//       try {
+//         const pending = await Pendingstatus.findOne({
+//           $and: [{ machine_id: req.params.machine }, { status: "InProcess" }],
+//         })
+//           .sort({ created_date: -1 })
+//           .limit(1);
+
+//         console.log("pending data fetched successfully");
+//         //console.log(pending);
+
+//         // if (pending.machine_id == "SVZBLR0001") {
+//         //   email.juniperEmail(pending);
+//         // } else {
+//         // email.pendingconfirm(pending);
+//         // }
+
+//         const transaction = await Transaction.findOneAndUpdate(
+//           { $and: [{ id: pending.transaction_id }, { status: "InProcess" }] },
+//           { $set: { status: "Completed" } }
+//         ).sort({ created_date: -1 });
+//         console.log("transaction modified data fetched successfully");
+//         //console.log(transaction);
+//         pending.status = "Completed";
+//         pending.error = req.url.slice(21);
+
+//         pending
+//           .save()
+//           .then((p) => {
+//             console.log("pending status modified data fetched successfully");
+//             //console.log(p);
+//             res.status(200).send("success");
+//           })
+//           .catch((e) => {
+//             res.status(200).send("success");
+//             console.log("Error in saving pendingstatus");
+//             console.log(e);
+//           });
+//         //const pending = await Pendingstatus.findOne({machine_id: req.params.machine});
+//       } catch (e) {
+//         console.log("error in find pending data :" + e);
+//       }
+//     } else {
+//       console.log(false);
+//       console.log(strg);
+//       try {
+//         const pending = await Pendingstatus.findOneAndUpdate(
+//           {
+//             $and: [{ machine_id: req.params.machine }, { status: "InProcess" }],
+//           },
+//           { $set: { status: "Failed", error: req.url.slice(21) } }
+//         ).sort({ created_date: -1 });
+//         res.status(200).send("success");
+//       } catch (e) {
+//         console.log(e);
+//         console.log(pending);
+//         res.status(200).send("success");
+//       }
+//     }
+//   }
+// });
+
+// ---------------------------------------------------------------------------//
+// ---------------------------------------------------------------------------//
+
 app.get("/credit/h/snaxsmart/:machine", async (req, res) => {
   console.log(req.url);
   if (!(req.query.card == undefined)) {
@@ -16905,8 +17444,8 @@ app.get(
   }
 );
 
-app.get("/allEmployees",async (req,res)=> {
-  const {machineId } = req.query;
+app.get("/allEmployees", async (req, res) => {
+  const { machineId } = req.query;
   const DataArray = [];
   const filter = {};
   if (machineId) {
@@ -16914,15 +17453,51 @@ app.get("/allEmployees",async (req,res)=> {
   }
   try {
     const employeeData = await Employee.find(filter);
-    if(employeeData.length<=0){
-       return res.status(200).json({ "message": "No employee found" });
+    if (employeeData.length <= 0) {
+      return res.status(200).json({ message: "No employee found" });
     }
     employeeData.map((employee) => {
-      const {iempid,card_number,employee_id,employee_name,email,manager_email,cost_center,department,cost_center_owner_name,company_id,machine_id } = employee;
-      DataArray.push({ Employee_Id:iempid,Card_Number:card_number,Employee_Id:employee_id,Employee_Name:employee_name,Employee_Email:email,Manger_Email:manager_email,Cost_center:cost_center,Department:department,Cost_Center_Owner_Name:cost_center_owner_name,Comapany_Id:company_id,Machine_Id:machine_id });
+      const {
+        iempid,
+        card_number,
+        employee_id,
+        employee_name,
+        email,
+        manager_email,
+        cost_center,
+        department,
+        cost_center_owner_name,
+        company_id,
+        machine_id,
+      } = employee;
+      DataArray.push({
+        Employee_Id: iempid,
+        Card_Number: card_number,
+        Employee_Id: employee_id,
+        Employee_Name: employee_name,
+        Employee_Email: email,
+        Manger_Email: manager_email,
+        Cost_center: cost_center,
+        Department: department,
+        Cost_Center_Owner_Name: cost_center_owner_name,
+        Comapany_Id: company_id,
+        Machine_Id: machine_id,
+      });
     });
-    
-    const csvFields = ["Employee_Id", "Card_Number", "Employee_Id", "Employee_Name", "Employee_Email", "Manger_Email", "Cost_center", "Department", "Cost_Center_Owner_Name", "Comapany_Id", "Machine_Id"];
+
+    const csvFields = [
+      "Employee_Id",
+      "Card_Number",
+      "Employee_Id",
+      "Employee_Name",
+      "Employee_Email",
+      "Manger_Email",
+      "Cost_center",
+      "Department",
+      "Cost_Center_Owner_Name",
+      "Comapany_Id",
+      "Machine_Id",
+    ];
     const csvParser = new CsvParser({ csvFields });
     const csvData = csvParser.parse(DataArray);
     res.setHeader("Content-Type", "text/csv");
@@ -16938,8 +17513,8 @@ app.get("/allEmployees",async (req,res)=> {
   }
 });
 
-app.get("/creditallEmployees",async (req,res)=> {
-  const {machineId } = req.query;
+app.get("/creditallEmployees", async (req, res) => {
+  const { machineId } = req.query;
   const DataArray = [];
   const filter = {};
   if (machineId) {
@@ -16947,16 +17522,53 @@ app.get("/creditallEmployees",async (req,res)=> {
   }
   try {
     const employeeData = await Credittable.find(filter);
-    if(employeeData.length<=0){
-      return res.status(200).json({ "message": "No employee found" });
+    if (employeeData.length <= 0) {
+      return res.status(200).json({ message: "No employee found" });
     }
     // console.log(employeeData)
     employeeData.map((employee) => {
-      const {empid,card_number,employee_id,employee_name,email,manager_email,cost_center,department,cost_center_owner_name,company_id,machine_id } = employee;
-      DataArray.push({ Employee_Id:empid,Card_Number:card_number,Employee_Id:employee_id,Employee_Name:employee_name,Employee_Email:email,Manger_Email:manager_email,Cost_center:cost_center,Department:department,Cost_Center_Owner_Name:cost_center_owner_name,Comapany_Id:company_id,Machine_Id:machine_id   });
+      const {
+        empid,
+        card_number,
+        employee_id,
+        employee_name,
+        email,
+        manager_email,
+        cost_center,
+        department,
+        cost_center_owner_name,
+        company_id,
+        machine_id,
+      } = employee;
+      DataArray.push({
+        Employee_Id: empid,
+        Card_Number: card_number,
+        Employee_Id: employee_id,
+        Employee_Name: employee_name,
+        Employee_Email: email,
+        Manger_Email: manager_email,
+        Cost_center: cost_center,
+        Department: department,
+        Cost_Center_Owner_Name: cost_center_owner_name,
+        Comapany_Id: company_id,
+        Machine_Id: machine_id,
+      });
     });
-    
-    const csvFields = ["Employee_Id", "Card_Number", "Employee_Id", "Employee_Name", "Employee_Email", "Manger_Email", "Cost_center", "Department", "Cost_Center_Owner_Name", "Comapany_Id", "Machine_Id", "Credit_Balance"];
+
+    const csvFields = [
+      "Employee_Id",
+      "Card_Number",
+      "Employee_Id",
+      "Employee_Name",
+      "Employee_Email",
+      "Manger_Email",
+      "Cost_center",
+      "Department",
+      "Cost_Center_Owner_Name",
+      "Comapany_Id",
+      "Machine_Id",
+      "Credit_Balance",
+    ];
     const csvParser = new CsvParser({ csvFields });
     const csvData = csvParser.parse(DataArray);
     res.setHeader("Content-Type", "text/csv");
@@ -16974,53 +17586,65 @@ app.get("/creditallEmployees",async (req,res)=> {
 
 //-----------------update credit balance of employees from machine------------------------//
 // Update the cost limit of the employee with ID 123
-cron.schedule('0 0 * * *', async() => {
-    await Credittable.updateMany({machine_id:"SVZBLR0012"}, {$set: { credit_balance: 150 }}, {upsert: true}),
+cron.schedule("0 0 * * *", async () => {
+  await Credittable.updateMany(
+    { machine_id: "SVZBLR0012" },
+    { $set: { credit_balance: 150 } },
+    { upsert: true }
+  ),
     (error, result) => {
-          if (error) {
-            console.error(error);
-          } else {
-            console.log('Cost limit updated successfully');
-          }
-        }
-        // console.log("------------------------------working--------------------------")
+      if (error) {
+        console.error(error);
+      } else {
+        console.log("Cost limit updated successfully");
+      }
+    };
+  // console.log("------------------------------working--------------------------")
 });
 
 //-------------------------checkMachineConnected--------------------------//
-app.post("/checkMachineConnected", async(req,res) => {
+app.post("/checkMachineConnected", async (req, res) => {
   // console.log("check");
   const data = await req.body.machine;
   let updatedate = Date.now();
   const options = {
-    timeZone: 'Asia/Kolkata',
+    timeZone: "Asia/Kolkata",
     hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   };
-  
-  const indiaTime = new Date(updatedate).toLocaleString('en-US', options);
-  
+
+  const indiaTime = new Date(updatedate).toLocaleString("en-US", options);
+
   // console.log('Current time in India:', indiaTime);
-  if(data){
-    const updatedata = await Machine.findOneAndUpdate({machine_id:data}, {active:true});
-    const updatensewdata = await Machine.findOneAndUpdate({machine_id:data}, {update:indiaTime});
+  if (data) {
+    const updatedata = await Machine.findOneAndUpdate(
+      { machine_id: data },
+      { active: true }
+    );
+    const updatensewdata = await Machine.findOneAndUpdate(
+      { machine_id: data },
+      { update: indiaTime }
+    );
     console.log(updatedata.machine_id);
   }
 });
 
-app.get("/checkMachineConnected", async(req,res) => {
+app.get("/checkMachineConnected", async (req, res) => {
   const machineid = req.body.id;
-  const conn = await Machine.find({machine_id:machineid}).select('machine_id install_location comapny_bulding_no product_type total_slots company_id slots_name active update');
+  const conn = await Machine.find({ machine_id: machineid }).select(
+    "machine_id install_location comapny_bulding_no product_type total_slots company_id slots_name active update"
+  );
   // console.log(conn);
   return res.send(conn);
 });
 
-cron.schedule("0 12 * * *", async ()=> {
-  async function DailyCsvReport(req,res) {
+cron.schedule("0 12 * * *", async () => {
+  async function DailyCsvReport(req, res) {
     var trans = [];
     function transaction(x) {
       if (x) {
@@ -17029,11 +17653,11 @@ cron.schedule("0 12 * * *", async ()=> {
       return trans;
     }
     try {
-    // Get yesterday's date
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 1);
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() - 1);
+      // Get yesterday's date
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 1);
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() - 1);
       // console.log("startDate",startDate);
       // console.log("endDate",endDate);
       // console.log(`${startDate} to ${endDate}`);
@@ -17099,8 +17723,8 @@ cron.schedule("0 12 * * *", async ()=> {
       res.status(200).json({ error: "server internal error" });
       console.log(e);
     }
-}
-  await DailyCsvReport()
+  }
+  await DailyCsvReport();
 });
 
 app.listen(port, () => {
