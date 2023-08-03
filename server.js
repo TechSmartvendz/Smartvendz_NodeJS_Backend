@@ -17589,7 +17589,7 @@ app.get("/creditallEmployees", async (req, res) => {
 cron.schedule("0 0 * * *", async () => {
   await Credittable.updateMany(
     { machine_id: "SVZBLR0012" },
-    { $set: { credit_balance: 150 } },
+    { $set: { credit_balance: 100 } },
     { upsert: true }
   ),
     (error, result) => {
