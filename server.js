@@ -1974,6 +1974,14 @@ app.post(
                   credittable.machine_id = employee.machine_id;
                   credittable.empid = employee._id;
                   credittable.active_status = true;
+
+                  var d = new Date();
+                  const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                  let monthname = month[d.getMonth()];
+                  let credit_month = monthname+d.getFullYear();
+                  let creditID = "" + employee.card_number + employee.machine_id + credit_month;
+
+                  credittable.creditid = creditID;
                   console.log("credittable",credittable)
                   const enterdata = await credittable.save();
                   console.log("enterdata",enterdata);
