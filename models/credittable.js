@@ -129,14 +129,13 @@ function firstDayOfMonth() {
 }
 function currentMonth() {
     var d = new Date();
-   
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     let monthname = month[d.getMonth()];
     return monthname+d.getFullYear();
 }
 function creditID() {
     var d = new Date();
-    var st=""+this.card_number+this.credit_month + this.machine_id;
+    var st=this.card_number+this.credit_month+this.machine_id ;
     
     return st;
 }
